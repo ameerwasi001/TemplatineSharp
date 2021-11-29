@@ -31,6 +31,21 @@ public class Value
         throw new RuntimeError(this.posStart, other.posEnd, string.Format("Cannot divide {0} and {1}", this.GetType(), other.GetType()));
     }
 
+    public static Value operator+ (Value a, Value b) {
+        return a.add(b);
+    }
+
+    public static Value operator- (Value a, Value b) {
+        return a.sub(b);
+    }
+
+    public static Value operator* (Value a, Value b) {
+        return a.mul(b);
+    }
+
+    public static Value operator/ (Value a, Value b) {
+        return a.div(b);
+    }
 }
 
 public class Number : Value

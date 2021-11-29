@@ -22,16 +22,16 @@ public class Interpreter : IVisitor<Value>
         var right = node.right.Accept(this, ctx);
         if (node.op.tokType == Token.TT_PLUS)
         {
-            return left.add(right);
+            return left + right;
         } else if (node.op.tokType == Token.TT_MINUS)
         {
-            return left.sub(right);
+            return left - right;
         } else if (node.op.tokType == Token.TT_MUL)
         {
-            return left.mul(right);
+            return left * right;
         } else if (node.op.tokType == Token.TT_DIV)
         {
-            return left.div(right);
+            return left / right;
         } else {
             throw new RuntimeError(node.posStart, node.posEnd, String.Format("{0} not a valid operator", node.op.tokType));
         }
