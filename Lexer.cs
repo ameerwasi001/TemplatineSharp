@@ -53,6 +53,17 @@ class Lexer
         return new Token(Token.TT_NUMBER, number_str, pos_start.Copy(), pos.Copy());
     }
 
+    public Token MakeIdentifier()
+    {
+        var pos_start = pos.Copy();
+        var id_str = "";
+        while (alphabets.Contains(currentChar[0]))
+        {
+            id_str += currentChar;
+            this.Advance();
+        }
+        return new Token(Token.TT_IDENT, id_str, pos_start.Copy(), pos.Copy());
+    }
     public List<Token> Lex()
     {
         this.Advance();
@@ -95,6 +106,9 @@ class Lexer
             } else if (digits.Contains(currentChar[0]))
             {
                 tokens.Add(this.MakeNumber());
+            } else if (alphabets.Contains(currentChar[0]))
+            {
+                tokens.Add(this.MakeIdentifier());
             } else 
             {
                 var posStart = pos.Copy();

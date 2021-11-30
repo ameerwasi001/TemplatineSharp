@@ -10,5 +10,6 @@ public interface IVisitor<T>
     T Visit(BinOpNode node, Context ctx);
     T Visit(NumNode node, Context ctx);
     T Visit(StrNode node, Context ctx);
+    T Visit(VarAccessNode node, Context ctx);
     T Visit(RenderNode node, Context ctx);
 }

@@ -46,6 +46,29 @@ public class NumNode : Node
     }
 }
 
+public class VarAccessNode : Node
+{
+    public string ident;
+    public Position posStart {set; get;}
+    public Position posEnd {set; get;}
+    public VarAccessNode(string name, Position start, Position end)
+    {
+        posStart = start;
+        posEnd = end;
+        ident = name;
+    }
+
+    public T Accept<T>(IVisitor<T> visitor, Context ctx)
+    {
+        return visitor.Visit(this, ctx);
+    }
+
+    public override string ToString()
+    {
+        return this.ident.ToString();
+    }
+}
+
 public class RenderNode : Node
 {
     public Node renderNode;
@@ -77,6 +100,7 @@ public class BinOpNode : Node
     public Node left;
     public Position posStart {set; get;}
     public Position posEnd {set; get;}
+
     public BinOpNode(Node leftNode, Token opValue, Node rightNode, Position start, Position end)
     {
         left = leftNode;

@@ -11,6 +11,19 @@ public class Value
         context = ctx;
     }
 
+    public Value setPos(Position start, Position end)
+    {
+        this.posStart = start;
+        this.posEnd = end;
+        return this;
+    }
+
+    public Value setContext(Context ctx)
+    {
+        this.context = ctx;
+        return this;
+    }
+
     public virtual Value add(Value other)
     {
         throw new RuntimeError(this.posStart, other.posEnd, string.Format("Cannot add {0} and {1}", this.GetType(), other.GetType()));
@@ -57,6 +70,11 @@ public class Number : Value
         num = given;
     }
 
+    public static Number Construct(double given)
+    {
+        return new Number(given, Position.Nothing(), Position.Nothing(), new Context());
+    }
+
     public override string ToString()
     {
         return num.ToString();
@@ -95,6 +113,11 @@ public class Str : Value
     public Str(string val, Position start, Position end, Context ctx) : base(start, end, ctx)
     {
         str = val;
+    }
+
+    public static Str Construct(string given)
+    {
+        return new Str(given, Position.Nothing(), Position.Nothing(), new Context());
     }
 
     public override string ToString()

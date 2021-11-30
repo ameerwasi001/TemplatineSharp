@@ -3,6 +3,7 @@ using System.Collections.Generic;
 public class Token 
 {
     public static string TT_NUMBER = "NUMBER";
+    public static string TT_IDENT = "IDENT";
     public static string TT_STRING = "STRING";
     public static string TT_PLUS = "PLUS";
     public static string TT_MINUS = "MINUS";

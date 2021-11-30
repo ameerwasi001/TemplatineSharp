@@ -21,6 +21,11 @@ public class Position {
         ftxt = ftxtV;
     }
 
+    static public Position Nothing(string ftxt = "")
+    {
+        return new Position(0, 0, 0, "<gloabls>", "");
+    }
+
     public void ResetIndexing()
     {
         idx = -1;

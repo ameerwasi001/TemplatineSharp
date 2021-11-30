@@ -89,7 +89,12 @@ class Parser {
             if (currentTok.tokType != Token.TT_LPAREN) throw new InvalidSyntaxError(currentTok.posStart.Copy(), currentTok.posEnd.Copy(), "Expected a ) token");
             this.Advance();
             return node;
-        } else 
+        } else if (currentTok.tokType == Token.TT_IDENT)
+        {
+            var ident = currentTok;
+            this.Advance();
+            return new VarAccessNode(ident.value, posStart, currentTok.posEnd.Copy());
+        } else
         {
             throw new InvalidSyntaxError(currentTok.posStart.Copy(), currentTok.posEnd.Copy(), "Expected a NUMBER token");
         }

@@ -16,6 +16,14 @@ public class Interpreter : IVisitor<Value>
     {
         return new Str(node.str, node.posStart, node.posEnd, ctx);
     }
+
+    public Value Visit(VarAccessNode node, Context ctx)
+    {
+        var val = ctx.Get(node.ident);
+        if (val == null) throw new RuntimeError(node.posStart, node.posEnd, String.Format("Undefined variable {0}", node.ident));
+        return val.setPos(node.posStart, node.posEnd).setContext(ctx);
+    }
+
     public Value Visit(BinOpNode node, Context ctx)
     {
         var left = node.left.Accept(this, ctx);
