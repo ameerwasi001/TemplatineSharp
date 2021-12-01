@@ -57,12 +57,44 @@ class TemplateLexer {
         toks.Add("");
     }
 
+    public void SkipString()
+    {
+        var str = "";
+        var esacapeChar = false;
+        var escapeChars = new Dictionary<string, string>(){
+            {"n", "\n"},
+            {"t", "\t"}
+        };
+        this.Adavnce();
+        while (currentChar != Token.TT_END && (currentChar != "\"" || esacapeChar))
+        {
+            if(esacapeChar)
+            {
+                str += escapeChars[currentChar].ToString();
+                esacapeChar = false;
+            } else 
+            {
+                if(currentChar == "\\")
+                {
+                    esacapeChar = true;
+                } else 
+                {
+                    str += currentChar.ToString();
+                }
+            }
+            this.Adavnce();
+        }
+        this.Adavnce();
+        toks[toks.Count - 1] += "\"" + str + "\"";
+    }
+
     public List<string> Lex()
     {
         while (currentChar != "")
         {
             if (this.Matches("{{")) this.BeginningToken("{{");
             else if (this.Matches("}}")) this.EndingToken("}}");
+            else if (currentChar == "\"") this.SkipString();
             else 
             {
                 toks[toks.Count - 1] += currentChar;

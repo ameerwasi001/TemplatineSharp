@@ -94,6 +94,11 @@ class Parser {
             var ident = currentTok;
             this.Advance();
             return new VarAccessNode(ident.value, posStart, currentTok.posEnd.Copy());
+        } else if (currentTok.tokType == Token.TT_STRING)
+        {
+            var str = currentTok;
+            this.Advance();
+            return new StrNode(str.value, posStart, currentTok.posEnd.Copy());
         } else
         {
             throw new InvalidSyntaxError(currentTok.posStart.Copy(), currentTok.posEnd.Copy(), "Expected a NUMBER token");

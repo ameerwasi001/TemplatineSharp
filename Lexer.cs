@@ -10,7 +10,7 @@ class Lexer
         'w', 'x', 'y', 'z'
     };
     static HashSet<char> whitespace = new HashSet<char>{
-        '\t', ' ',
+        '\t', ' ', '\n', '\r',
     };
     public string text = "";
     public string fn = "";
@@ -53,6 +53,38 @@ class Lexer
         return new Token(Token.TT_NUMBER, number_str, pos_start.Copy(), pos.Copy());
     }
 
+    public Token MakeString()
+    {
+        var str = "";
+        var posStart = pos.Copy();
+        var esacapeChar = false;
+        var escapeChars = new Dictionary<string, string>(){
+            {"n", "\n"},
+            {"t", "\t"}
+        };
+        this.Advance();
+        while (currentChar != Token.TT_END && (currentChar != "\"" || esacapeChar))
+        {
+            if(esacapeChar)
+            {
+                str += escapeChars[currentChar].ToString();
+                esacapeChar = false;
+            } else 
+            {
+                if(currentChar == "\\")
+                {
+                    esacapeChar = true;
+                } else 
+                {
+                    str += currentChar.ToString();
+                }
+            }
+            this.Advance();
+        }
+        this.Advance();
+        return new Token(Token.TT_STRING, str, posStart.Copy(), pos.Copy());
+    }
+
     public Token MakeIdentifier()
     {
         var pos_start = pos.Copy();
@@ -68,8 +100,6 @@ class Lexer
     {
         this.Advance();
         var tokens = new List<Token>();
-        // System.Console.WriteLine("---'"+currentChar+"'");
-        // return tokens;
         while (currentChar != Token.TT_END)
         {
             if (whitespace.Contains(currentChar[0]))
@@ -79,6 +109,9 @@ class Lexer
             {
                 tokens.Add(new Token(Token.TT_PLUS, pos.Copy(), pos.Copy()));
                 this.Advance();
+            } else if (currentChar == "\"")
+            {
+                tokens.Add(this.MakeString());
             } else if (currentChar == "-")
             {
                 tokens.Add(new Token(Token.TT_MINUS, pos.Copy(), pos.Copy()));

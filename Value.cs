@@ -18,6 +18,16 @@ public class Value
         return this;
     }
 
+    public static Number Construct(int i)
+    {
+        return Number.Construct(i);
+    }
+
+    public static Str Construct(string s)
+    {
+        return Str.Construct(s);
+    }
+
     public Value setContext(Context ctx)
     {
         this.context = ctx;
@@ -113,6 +123,12 @@ public class Str : Value
     public Str(string val, Position start, Position end, Context ctx) : base(start, end, ctx)
     {
         str = val;
+    }
+
+    override public Value add(Value other)
+    {
+        if (!(other is Str)) base.add(other);
+        return new Str(this.str + ((Str)other).str, this.posStart, other.posEnd, other.context);
     }
 
     public static Str Construct(string given)
