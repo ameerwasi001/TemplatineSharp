@@ -4,6 +4,7 @@ public class Token
 {
     public static string TT_NUMBER = "NUMBER";
     public static string TT_IDENT = "IDENT";
+    public static string TT_KEYWORD = "KEYWORD";
     public static string TT_STRING = "STRING";
     public static string TT_PLUS = "PLUS";
     public static string TT_MINUS = "MINUS";
@@ -21,9 +22,10 @@ public class Token
     public string value;
     public Position posStart; 
     public Position posEnd; 
-    static HashSet <string> KEYWORDS = new HashSet <string> {  
-        "val",
-        "fun", 
+    public static HashSet <string> KEYWORDS = new HashSet <string> {  
+        "for",
+        "in",
+        "endfor",
     };
 
 

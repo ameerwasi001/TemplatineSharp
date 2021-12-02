@@ -31,7 +31,7 @@ class TemplateLexer {
         var matchLength = frozenIndex + matching.Length;
         while(index < matchLength)
         {
-            if(matching[matchIndex] == currentChar[0]) this.Adavnce();
+            if(matching[matchIndex].ToString() == currentChar.ToString()) this.Adavnce();
             else
             {
                 this.Revert(frozenIndex);
@@ -88,12 +88,56 @@ class TemplateLexer {
         toks[toks.Count - 1] += "\"" + str + "\"";
     }
 
-    public List<string> Lex()
+    private List<TemplateToken> ToTemplateTokens(List<string> toks)
+    {
+        var templateToks = new List<TemplateToken>();
+
+        var pos = new Position("<module>", contents);
+        pos.Advance();
+        foreach(var tok in toks) {
+            var posStart = pos.Copy();
+            if (tok.StartsWith("{{"))
+            {
+                pos.Advance();
+                pos.Advance();
+                var subStr = tok.Substring(2);
+                var finalStr = subStr.Substring(0, subStr.Length-2);
+                var toksForExprParser = new Lexer("<module>", finalStr, pos).Lex();
+                var node = new Parser(toksForExprParser).Parse();
+                pos.Advance();
+                pos.Advance();
+                var currentPos = pos.Copy();
+                var renderTok = new RenderToken(node, posStart, currentPos);
+                templateToks.Add(renderTok);
+            } else if (tok.StartsWith("{%"))
+            {
+                pos.Advance();
+                pos.Advance();
+                var subStr = tok.Substring(2);
+                var finalStr = subStr.Substring(0, subStr.Length-2);
+                var toksForExprParser = new Lexer("<module>", finalStr, pos).Lex();
+                var beginSmntCue = new Parser(toksForExprParser).ParseCue();
+                pos.Advance();
+                pos.Advance();
+                templateToks.Add(beginSmntCue);
+            } else {
+                foreach(var ch in tok) pos.Advance(ch.ToString());
+                var currentPos = pos.Copy();
+                templateToks.Add(new RenderToken(new StrNode(tok, posStart, currentPos), posStart, currentPos));
+            }
+        }
+
+        return templateToks;
+    }
+
+    public List<TemplateToken> Lex()
     {
         while (currentChar != "")
         {
             if (this.Matches("{{")) this.BeginningToken("{{");
             else if (this.Matches("}}")) this.EndingToken("}}");
+            else if (this.Matches("{%")) this.BeginningToken("{%");
+            else if (this.Matches("%}")) this.EndingToken("%}");
             else if (currentChar == "\"") this.SkipString();
             else 
             {
@@ -101,6 +145,7 @@ class TemplateLexer {
                 this.Adavnce();
             }
         }
-        return toks;
+
+        return this.ToTemplateTokens(toks);
     }
 }

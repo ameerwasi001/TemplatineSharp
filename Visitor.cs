@@ -12,4 +12,5 @@ public interface IVisitor<T>
     T Visit(StrNode node, Context ctx);
     T Visit(VarAccessNode node, Context ctx);
     T Visit(RenderNode node, Context ctx);
+    T Visit(ForNode node, Context ctx);
 }

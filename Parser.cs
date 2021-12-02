@@ -32,6 +32,49 @@ class Parser {
         return currentTok;
     }
 
+    public TemplateToken ParseCue()
+    {
+        var val = ParseStatement();
+        if (currentTok.tokType != Token.TT_END)
+        {
+            throw new InvalidSyntaxError(currentTok.posStart.Copy(), currentTok.posEnd.Copy(), "Unexpected EOF");
+        }
+        return val;
+    }
+
+    public TemplateToken ParseStatement()
+    {
+        if(currentTok.Matches("KEYWORD", "for")) return ParseForStmnt();
+        else if(currentTok.Matches("KEYWORD", "endfor")) return ParseEndForStmnt();
+        else throw new InvalidSyntaxError(currentTok.posStart.Copy(), currentTok.posEnd.Copy(), "Expected \"for\" or \"endfor\" keyword");
+    }
+
+    public TemplateToken ParseForStmnt()
+    {
+        var posStart = currentTok.posStart.Copy();
+        if(!(currentTok.Matches("KEYWORD", "for"))) 
+            throw new InvalidSyntaxError(currentTok.posStart.Copy(), currentTok.posEnd.Copy(), "Expected \"for\" keyword");
+        this.Advance();
+        if(currentTok.tokType != "IDENT")
+            throw new InvalidSyntaxError(currentTok.posStart.Copy(), currentTok.posEnd.Copy(), "Expected an identifier");
+        var ident = new VarAccessNode(currentTok.value, currentTok.posStart.Copy(), currentTok.posEnd.Copy());
+        this.Advance();
+        if(!(currentTok.Matches("KEYWORD", "in"))) 
+            throw new InvalidSyntaxError(currentTok.posStart.Copy(), currentTok.posEnd.Copy(), "Expected \"in\" keyword");
+        this.Advance();
+        var iteratorNode = Parse();
+        return new ForCue(ident, iteratorNode, posStart, currentTok.posEnd);
+    }
+
+    public TemplateToken ParseEndForStmnt()
+    {
+        var posStart = currentTok.posStart.Copy();
+        if(!(currentTok.Matches("KEYWORD", "endfor"))) 
+            throw new InvalidSyntaxError(currentTok.posStart.Copy(), currentTok.posEnd.Copy(), "Expected \"endfor\" keyword");
+        this.Advance();
+        return new TemplateToken(TemplateTokenType.EndForCue, posStart, currentTok.posEnd);
+    }
+
     public Node Parse()
     {
         var val = ParsePipedExpression();

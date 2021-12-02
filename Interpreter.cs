@@ -45,4 +45,8 @@ public class Interpreter : IVisitor<Value>
         }
     }
 
+    public Value Visit(ForNode node, Context ctx)
+    {
+        throw new Exception("For loops throw exception: Unimplemented!");
+    }
 }

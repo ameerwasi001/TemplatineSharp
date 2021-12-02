@@ -3,7 +3,7 @@ using System.Collections.Generic;
 
 class Lexer 
 {
-    static HashSet<char> digits = new HashSet<char>{'1', '2', '3', '4', '5', '6', '7', '8', '9', '0', 'e'};
+    static HashSet<char> digits = new HashSet<char>{'1', '2', '3', '4', '5', '6', '7', '8', '9', '0', '.'};
     static HashSet<char> alphabets = new HashSet<char>{
         'a', 'b', 'c', 'd', 'e', 'f', 'g', 'h', 'i', 'j', 'k',
         'l', 'm', 'n', 'o', 'p', 'q', 'r', 's', 't', 'u', 'v',
@@ -94,7 +94,11 @@ class Lexer
             id_str += currentChar;
             this.Advance();
         }
-        return new Token(Token.TT_IDENT, id_str, pos_start.Copy(), pos.Copy());
+
+        return
+            Token.KEYWORDS.Contains(id_str) 
+                ? new Token(Token.TT_KEYWORD, id_str, pos_start.Copy(), pos.Copy()) 
+                : new Token(Token.TT_IDENT, id_str, pos_start.Copy(), pos.Copy());
     }
     public List<Token> Lex()
     {

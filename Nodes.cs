@@ -1,3 +1,6 @@
+using System.Collections.Generic;
+using System.Linq;
+
 public class StrNode : Node
 {
     public string str;
@@ -118,5 +121,33 @@ public class BinOpNode : Node
     public override string ToString()
     {
         return "(" + left.ToString() + " " + op.tokType + " " + right.ToString() + ")";
+    }
+}
+
+public class ForNode : Node
+{
+    public Node ident;
+    public Node iterNode;
+    public List<Node> nodes;
+    public Position posStart {set; get;}
+    public Position posEnd {set; get;}
+
+    public ForNode(Node id, Node iter, List<Node> ns, Position start, Position end)
+    {
+        posStart = start;
+        posEnd = end;
+        nodes = ns;
+        iterNode = iter;
+        ident = id;
+    }
+
+    public T Accept<T>(IVisitor<T> visitor, Context ctx)
+    {
+        return visitor.Visit(this, ctx);
+    }
+
+    public override string ToString()
+    {
+        return "for " + ident.ToString() + " in " + iterNode.ToString() + " {\n" + string.Join(";\n", this.nodes.Select(node => "\t" + node.ToString())) + "\n}";
     }
 }
