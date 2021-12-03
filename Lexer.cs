@@ -85,6 +85,19 @@ class Lexer
         return new Token(Token.TT_STRING, str, posStart.Copy(), pos.Copy());
     }
 
+    public Token MakeAOrB(string a, string tokA, string b, string tokB) 
+    {
+        var tokType = tokA;
+        var posStart = pos.Copy();
+        Advance();
+        if (currentChar == b)
+        {
+            Advance();
+            tokType = tokB;
+        }
+        return new Token(tokType, "", posStart, pos.Copy());
+    }
+
     public Token MakeIdentifier()
     {
         var pos_start = pos.Copy();
@@ -128,6 +141,20 @@ class Lexer
             {
                 tokens.Add(new Token(Token.TT_DIV, pos.Copy(), pos.Copy()));
                 this.Advance();
+            } else if (currentChar == "&")
+            {
+                tokens.Add(new Token(Token.TT_AND, pos.Copy(), pos.Copy()));
+                this.Advance();
+            } else if (currentChar == "|")
+            {
+                tokens.Add(new Token(Token.TT_OR, pos.Copy(), pos.Copy()));
+                this.Advance();
+            } else if (currentChar == ">")
+            {
+                tokens.Add(MakeAOrB(">", Token.TT_GT, "=", Token.TT_GTE));
+            } else if (currentChar == "<")
+            {
+                tokens.Add(MakeAOrB("<", Token.TT_LT, "=", Token.TT_LTE));
             } else if (currentChar == "(")
             {
                 tokens.Add(new Token(Token.TT_RPAREN, pos.Copy(), pos.Copy()));
@@ -135,10 +162,6 @@ class Lexer
             } else if (currentChar == ")")
             {
                 tokens.Add(new Token(Token.TT_LPAREN, pos.Copy(), pos.Copy()));
-                this.Advance();
-            } else if (currentChar == "|")
-            {
-                tokens.Add(new Token(Token.TT_PIPE, pos.Copy(), pos.Copy()));
                 this.Advance();
             } else if (digits.Contains(currentChar[0]))
             {

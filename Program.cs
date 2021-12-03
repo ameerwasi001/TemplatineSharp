@@ -8,11 +8,12 @@ namespace TemplateSharp
         static void Main(string[] args)
         {
             var str = "";
-            str += "The number is {{x+4.2*(2-3)}}, what's up?\nWhere is {{name + \"'s shirt with print {{obj}}\"}}?";
-            str += "\nI could go for any of the following meals";
+            str += "The number is {{x+4.2*(2-3)}}, what's up?";
+            str += "\nWhere is {{name + \"'s shirt with print {{obj}}\"}}?";
+            str += "\nI could go for any of the following";
             str += "\n{% for meal in meals %}";
             str += "\n  {% for ingred in meal %}";
-            str += "\n  - I could go for a {{ingred}}";
+            str += "\n  - I could go for a meal with {{ingred}}";
             str += "\n  {% endfor %}";
             str += "\n{% endfor %}";
 

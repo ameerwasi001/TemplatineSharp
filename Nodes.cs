@@ -25,6 +25,29 @@ public class StrNode : Node
     }
 }
 
+public class BoolNode : Node
+{
+    public bool boolean;
+    public Position posStart {set; get;}
+    public Position posEnd {set; get;}
+
+    public BoolNode(bool val, Position start, Position end)
+    {
+        posStart = start;
+        posEnd = end;
+        boolean = val;
+    }
+
+    public T Accept<T>(IVisitor<T> visitor, Context ctx)
+    {
+        return visitor.Visit(this, ctx);
+    }
+
+    public override string ToString()
+    {
+        return boolean ? "true" : "false";
+    }
+}
 
 public class NumNode : Node
 {

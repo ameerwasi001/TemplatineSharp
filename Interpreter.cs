@@ -8,6 +8,11 @@ public class Interpreter : IVisitor<Value>
         return new Number(node.num, node.posStart, node.posEnd, ctx);
     }
 
+    public Value Visit(BoolNode node, Context ctx)
+    {
+        return new Bool(node.boolean, node.posStart, node.posEnd, ctx);
+    }
+
     public Value Visit(RenderNode node, Context ctx)
     {
         return node.renderNode.Accept(this, ctx);
@@ -41,6 +46,24 @@ public class Interpreter : IVisitor<Value>
         } else if (node.op.tokType == Token.TT_DIV)
         {
             return left / right;
+        } else if (node.op.tokType == Token.TT_AND)
+        {
+            return left & right;
+        } else if (node.op.tokType == Token.TT_GT)
+        {
+            return left > right;
+        } else if (node.op.tokType == Token.TT_GTE)
+        {
+            return left >= right;
+        } else if (node.op.tokType == Token.TT_LT)
+        {
+            return left < right;
+        } else if (node.op.tokType == Token.TT_LTE)
+        {
+            return left <= right;
+        } else if (node.op.tokType == Token.TT_OR)
+        {
+            return left | right;
         } else {
             throw new RuntimeError(node.posStart, node.posEnd, string.Format("{0} not a valid operator", node.op.tokType));
         }

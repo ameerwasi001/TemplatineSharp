@@ -35,6 +35,11 @@ public class Value
         return Str.Construct(s);
     }
 
+    public static Bool Construct(bool s)
+    {
+        return Bool.Construct(s);
+    }
+
     public static IteratorValue Construct(IEnumerable<Value> vals)
     {
         return IteratorValue.Construct(vals);
@@ -66,6 +71,41 @@ public class Value
         throw new RuntimeError(this.posStart, other.posEnd, string.Format("Cannot divide {0} and {1}", this.GetType(), other.GetType()));
     }
 
+    public virtual Value gte(Value other)
+    {
+        throw new RuntimeError(this.posStart, other.posEnd, string.Format("Cannot use >= with {0} and {1}", this.GetType(), other.GetType()));
+    }
+
+    public virtual Value gt(Value other)
+    {
+        throw new RuntimeError(this.posStart, other.posEnd, string.Format("Cannot use > with {0} and {1}", this.GetType(), other.GetType()));
+    }
+
+    public virtual Value lt(Value other)
+    {
+        throw new RuntimeError(this.posStart, other.posEnd, string.Format("Cannot use < with {0} and {1}", this.GetType(), other.GetType()));
+    }
+
+    public virtual Value lte(Value other)
+    {
+        throw new RuntimeError(this.posStart, other.posEnd, string.Format("Cannot use <= with {0} and {1}", this.GetType(), other.GetType()));
+    }
+
+    public virtual Value anded(Value other)
+    {
+        return new Bool(this.IsTrue() && other.IsTrue(), this.posStart, other.posEnd, context);
+    }
+
+    public virtual Value ored(Value other)
+    {
+        return new Bool(this.IsTrue() || other.IsTrue(), this.posStart, other.posEnd, context);
+    }
+
+    public virtual bool IsTrue()
+    {
+        throw new RuntimeError(this.posStart, this.posEnd, string.Format("{0} has no intrinsic truth value", this.GetType()));
+    }
+
     public static Value operator+ (Value a, Value b) {
         return a.add(b);
     }
@@ -80,6 +120,30 @@ public class Value
 
     public static Value operator/ (Value a, Value b) {
         return a.div(b);
+    }
+
+    public static Value operator> (Value a, Value b) {
+        return a.gt(b);
+    }
+
+    public static Value operator>= (Value a, Value b) {
+        return a.gte(b);
+    }
+
+    public static Value operator< (Value a, Value b) {
+        return a.lt(b);
+    }
+
+    public static Value operator<= (Value a, Value b) {
+        return a.lte(b);
+    }
+
+    public static Value operator& (Value a, Value b) {
+        return a.anded(b);
+    }
+
+    public static Value operator| (Value a, Value b) {
+        return a.ored(b);
     }
 }
 
@@ -126,6 +190,30 @@ public class Number : Value
         if (((Number)other).num == 0) throw new RuntimeError(other.posStart, other.posEnd, "Division by zero is undefined");
         return new Number(this.num / ((Number)other).num, this.posStart, other.posEnd, other.context);
     }
+
+    override public Value gte(Value other)
+    {
+        if (!(other is Number)) base.gte(other);
+        return new Bool(this.num >= ((Number)other).num, this.posStart, other.posEnd, other.context);
+    }
+
+    override public Value gt(Value other)
+    {
+        if (!(other is Number)) base.gt(other);
+        return new Bool(this.num > ((Number)other).num, this.posStart, other.posEnd, other.context);
+    }
+
+    override public Value lt(Value other)
+    {
+        if (!(other is Number)) base.lt(other);
+        return new Bool(this.num < ((Number)other).num, this.posStart, other.posEnd, other.context);
+    }
+
+    override public Value lte(Value other)
+    {
+        if (!(other is Number)) base.lte(other);
+        return new Bool(this.num <= ((Number)other).num, this.posStart, other.posEnd, other.context);
+    }
 }
 
 public class Str : Value, IterableValue
@@ -156,6 +244,31 @@ public class Str : Value, IterableValue
     public override string ToString()
     {
         return str;
+    }
+}
+
+public class Bool : Value
+{
+    public bool boolean;
+
+    public Bool(bool b, Position start, Position end, Context ctx) : base(start, end, ctx)
+    {
+        boolean = b;
+    }
+
+    public new static Bool Construct(bool given)
+    {
+        return new Bool(given, Position.Nothing(), Position.Nothing(), new Context());
+    }
+
+    public override bool IsTrue()
+    {
+        return boolean;
+    }
+
+    public override string ToString()
+    {
+        return boolean ? "true" : "false";
     }
 }
 

@@ -100,7 +100,22 @@ class Parser {
 
     public Node ParsePipedExpression()
     {
-        return BinOp(this.ParseExpression, new HashSet<string>{Token.TT_PIPE}, this.ParseExpression);
+        return BinOp(this.ParseLogicExpr, new HashSet<string>{Token.TT_PIPE}, this.ParseLogicExpr);
+    }
+
+    public Node ParseLogicExpr()
+    {
+        return BinOp(this.ParseCompExpr, new HashSet<string>{Token.TT_AND, Token.TT_OR}, this.ParseCompExpr);
+    }
+
+    public Node ParseCompExpr()
+    {
+        return BinOp(this.ParseExpression, new HashSet<string>{
+            Token.TT_GT,
+            Token.TT_LT,
+            Token.TT_LTE,
+            Token.TT_GTE,
+        }, this.ParseExpression);
     }
 
     public Node ParseExpression()
@@ -142,6 +157,11 @@ class Parser {
             var str = currentTok;
             this.Advance();
             return new StrNode(str.value, posStart, currentTok.posEnd.Copy());
+        } else if (currentTok.Matches("KEYWORD", "true") || currentTok.Matches("KEYWORD", "false"))
+        {
+            var boolTok = currentTok;
+            this.Advance();
+            return new BoolNode(boolTok.value == "true", posStart, currentTok.posEnd.Copy());
         } else
         {
             throw new InvalidSyntaxError(currentTok.posStart.Copy(), currentTok.posEnd.Copy(), "Expected a NUMBER token");
