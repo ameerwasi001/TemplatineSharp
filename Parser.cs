@@ -57,7 +57,7 @@ class Parser {
         this.Advance();
         if(currentTok.tokType != "IDENT")
             throw new InvalidSyntaxError(currentTok.posStart.Copy(), currentTok.posEnd.Copy(), "Expected an identifier");
-        var ident = new VarAccessNode(currentTok.value, currentTok.posStart.Copy(), currentTok.posEnd.Copy());
+        var ident = currentTok;
         this.Advance();
         if(!(currentTok.Matches("KEYWORD", "in"))) 
             throw new InvalidSyntaxError(currentTok.posStart.Copy(), currentTok.posEnd.Copy(), "Expected \"in\" keyword");

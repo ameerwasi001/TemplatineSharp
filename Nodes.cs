@@ -126,13 +126,13 @@ public class BinOpNode : Node
 
 public class ForNode : Node
 {
-    public Node ident;
+    public Token ident;
     public Node iterNode;
     public List<Node> nodes;
     public Position posStart {set; get;}
     public Position posEnd {set; get;}
 
-    public ForNode(Node id, Node iter, List<Node> ns, Position start, Position end)
+    public ForNode(Token id, Node iter, List<Node> ns, Position start, Position end)
     {
         posStart = start;
         posEnd = end;

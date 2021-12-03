@@ -1,4 +1,5 @@
-using System;
+using System.Collections.Generic;
+using System.Linq;
 
 public class Interpreter : IVisitor<Value>
 {
@@ -20,7 +21,7 @@ public class Interpreter : IVisitor<Value>
     public Value Visit(VarAccessNode node, Context ctx)
     {
         var val = ctx.Get(node.ident);
-        if (val == null) throw new RuntimeError(node.posStart, node.posEnd, String.Format("Undefined variable {0}", node.ident));
+        if (val == null) throw new RuntimeError(node.posStart, node.posEnd, string.Format("Undefined variable {0}", node.ident));
         return val.setPos(node.posStart, node.posEnd).setContext(ctx);
     }
 
@@ -41,12 +42,24 @@ public class Interpreter : IVisitor<Value>
         {
             return left / right;
         } else {
-            throw new RuntimeError(node.posStart, node.posEnd, String.Format("{0} not a valid operator", node.op.tokType));
+            throw new RuntimeError(node.posStart, node.posEnd, string.Format("{0} not a valid operator", node.op.tokType));
         }
     }
 
-    public Value Visit(ForNode node, Context ctx)
+    public Value Visit(ForNode forNode, Context ctx)
     {
-        throw new Exception("For loops throw exception: Unimplemented!");
+        var nodes = forNode.nodes;
+        var possiblyIter = forNode.iterNode.Accept(this, ctx);
+        if(possiblyIter is IterableValue) {
+            var iter = (IterableValue)possiblyIter;
+            var outputs = new List<Value>();
+            foreach(var value in iter.GetIter())
+            {
+                var newCtx = new Context(new SymbolTable(ctx.symbolTable), "<for-loop>", ctx, forNode.posStart);
+                newCtx.Set(forNode.ident.value, value);
+                foreach(var node in nodes) outputs.Add(node.Accept(this, newCtx));
+            }
+            return new ForLoopValue(outputs, forNode.posStart, forNode.posEnd, ctx);
+        } else throw new RuntimeError(forNode.posStart, forNode.posEnd, "Cannot iterate over " + possiblyIter.ToString());
     }
 }

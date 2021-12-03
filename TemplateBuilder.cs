@@ -3,7 +3,6 @@ using System.Linq;
 
 public class Template {
     private List<Node> nodes;
-    private Dictionary<string, Value> dict;
 
     public Template(List<Node> list)
     {

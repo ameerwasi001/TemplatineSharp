@@ -26,7 +26,7 @@ public class TemplateToken
         return new TemplateToken(TemplateTokenType.EOF, Position.Nothing(), Position.Nothing());
     }
 
-    public virtual Node GetIterIdent()
+    public virtual Token GetIterIdent()
     {
         throw new Exception("No iter identifiers here...");
     }
@@ -60,9 +60,9 @@ public class RenderToken : TemplateToken
 public class ForCue : TemplateToken 
 {
     public Node iteratorNode;
-    public Node identifier;
+    public Token identifier;
 
-    public ForCue(Node ident, Node node, Position start, Position end) : base(TemplateTokenType.ForCue, start, end)
+    public ForCue(Token ident, Node node, Position start, Position end) : base(TemplateTokenType.ForCue, start, end)
     {
         iteratorNode = node;
         identifier = ident;
@@ -73,7 +73,7 @@ public class ForCue : TemplateToken
         return iteratorNode;
     }
 
-    override public Node GetIterIdent()
+    override public Token GetIterIdent()
     {
         return identifier;
     }
