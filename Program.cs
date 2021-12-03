@@ -23,7 +23,7 @@ namespace TemplateSharp
                 {"name", Value.Construct("Ameer")},
                 {"meals", Value.Construct(new List<Value>(){
                     Value.Construct(new List<Value>(){Value.Construct("Tuna"), Value.Construct("Salmon")}),
-                    Value.Construct(new List<Value>(){Value.Construct("Chicken"), Value.Construct("Crab")}),
+                    Value.Construct(new List<Value>(){Value.Construct("Chicken"), Value.Construct("Broccoli")}),
                 })},
             });
             System.Console.WriteLine(executed);

@@ -44,8 +44,9 @@ public class TemplateParser
 
     private Node ParseForLoop()
     {
-        var iter = currentTok.GetIterNode();
-        var ident = currentTok.GetIterIdent();
+        var forLoopContent = currentTok.GetForCueContent();
+        var ident = forLoopContent.Item1;
+        var iter = forLoopContent.Item2;
         var posStart = currentTok.posStart;
         this.Advance();
         var currentNodes = new List<Node>();

@@ -26,19 +26,14 @@ public class TemplateToken
         return new TemplateToken(TemplateTokenType.EOF, Position.Nothing(), Position.Nothing());
     }
 
-    public virtual Token GetIterIdent()
+    public virtual Tuple<Token, Node> GetForCueContent()
     {
-        throw new Exception("No iter identifiers here...");
-    }
-
-    public virtual Node GetIterNode()
-    {
-        throw new Exception("No iter nodes here...");
+        throw new Exception("This is not a for cue...");
     }
 
     public virtual Node GetRenderNode()
     {
-        throw new Exception("No render nodes here...");
+        throw new Exception("This is not a render node...");
     }
 }
 
@@ -68,13 +63,8 @@ public class ForCue : TemplateToken
         identifier = ident;
     }
 
-    override public Node GetIterNode()
+    override public Tuple<Token, Node> GetForCueContent()
     {
-        return iteratorNode;
-    }
-
-    override public Token GetIterIdent()
-    {
-        return identifier;
+        return Tuple.Create<Token, Node>(identifier, iteratorNode);
     }
 }
