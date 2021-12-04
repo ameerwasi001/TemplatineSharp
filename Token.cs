@@ -34,6 +34,7 @@ public class Token
         "endfor",
         "if",
         "elif",
+        "else",
         "endif",
         "true",
         "false"

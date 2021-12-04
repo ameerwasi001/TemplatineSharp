@@ -181,12 +181,14 @@ public class IfNode : Node
     public Position posStart {set; get;}
     public Position posEnd {set; get;}
     public List<Tuple<Node, List<Node>>> blocks;
+    public List<Node> elseCase;
 
-    public IfNode(List<Tuple<Node, List<Node>>> nodes, Position start, Position end)
+    public IfNode(List<Tuple<Node, List<Node>>> nodes, List<Node> finalCase, Position start, Position end)
     {
         posStart = start;
         posEnd = end;
         blocks = nodes;
+        elseCase = finalCase;
     }
 
     public T Accept<T>(IVisitor<T> visitor, Context ctx)
@@ -203,6 +205,6 @@ public class IfNode : Node
             var block = string.Concat(contents.Item2.Select(a => a.ToString()));
             strs.Add(string.Format("case {0}: {1}", cond, block));
         }
-        return string.Join("\n", strs);
+        return string.Join("\n", strs) + string.Format("\nelse: {0}", string.Concat(elseCase.Select(a => a.ToString())));
     }
 }

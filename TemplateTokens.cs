@@ -6,6 +6,7 @@ public enum TemplateTokenType
     EndForCue,
     IfCue,
     ElifCue,
+    ElseCue,
     EndIfCue,
     Render,
     EOF,

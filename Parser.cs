@@ -48,15 +48,16 @@ class Parser {
         else if(currentTok.Matches("KEYWORD", "endfor")) return ParseEndForStmnt();
         else if(currentTok.Matches("KEYWORD", "if")) return ParseIfStmnt();
         else if(currentTok.Matches("KEYWORD", "elif")) return ParseElifStmnt();
+        else if(currentTok.Matches("KEYWORD", "else")) return ParseElseStmnt();
         else if(currentTok.Matches("KEYWORD", "endif")) return ParseEndIfStmnt();
-        else throw new InvalidSyntaxError(currentTok.posStart.Copy(), currentTok.posEnd.Copy(), "Expected \"for\", \"if\", \"elif\", \"endif\", or \"endfor\" keyword");
+        else throw new InvalidSyntaxError(currentTok.posStart.Copy(), currentTok.posEnd.Copy(), "Expected \"for\", \"if\", \"elif\", \"else\", \"endif\", or \"endfor\" keyword");
     }
 
     public TemplateToken ParseIfStmnt()
     {
         var posStart = currentTok.posStart.Copy();
         if(!(currentTok.Matches("KEYWORD", "if"))) 
-            throw new InvalidSyntaxError(currentTok.posStart.Copy(), currentTok.posEnd.Copy(), "Expected \"for\" keyword");
+            throw new InvalidSyntaxError(currentTok.posStart.Copy(), currentTok.posEnd.Copy(), "Expected \"if\" keyword");
         this.Advance();
         var cond = Parse();
         return new IfCue(cond, posStart, currentTok.posEnd.Copy());
@@ -66,10 +67,19 @@ class Parser {
     {
         var posStart = currentTok.posStart.Copy();
         if(!(currentTok.Matches("KEYWORD", "elif"))) 
-            throw new InvalidSyntaxError(currentTok.posStart.Copy(), currentTok.posEnd.Copy(), "Expected \"for\" keyword");
+            throw new InvalidSyntaxError(currentTok.posStart.Copy(), currentTok.posEnd.Copy(), "Expected \"elif\" keyword");
         this.Advance();
         var cond = Parse();
         return new ElifCue(cond, posStart, currentTok.posEnd.Copy());
+    }
+
+    public TemplateToken ParseElseStmnt()
+    {
+        var posStart = currentTok.posStart.Copy();
+        if(!(currentTok.Matches("KEYWORD", "else"))) 
+            throw new InvalidSyntaxError(currentTok.posStart.Copy(), currentTok.posEnd.Copy(), "Expected \"else\" keyword");
+        this.Advance();
+        return new TemplateToken(TemplateTokenType.ElseCue, posStart, currentTok.posEnd);
     }
 
     public TemplateToken ParseEndIfStmnt()

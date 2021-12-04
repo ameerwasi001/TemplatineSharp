@@ -18,6 +18,8 @@ namespace TemplateSharp
             str += "\n  {% elif x < 5 %}";
             str += "\n  - I would like to have a meal with {{ingred}}";
             str += "\n  {% elif x < 10 %}";
+            str += "\n  - I would love a meal with {{ingred}}";
+            str += "\n  {% else %}";
             str += "\n  - I would kill for a meal with {{ingred}}";
             str += "\n  {% endif %}";
             str += "\n  {% endfor %}";
