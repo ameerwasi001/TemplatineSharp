@@ -1,3 +1,4 @@
+using System;
 using System.Collections.Generic;
 using System.Linq;
 
@@ -172,5 +173,36 @@ public class ForNode : Node
     public override string ToString()
     {
         return "for " + ident.ToString() + " in " + iterNode.ToString() + " {\n" + string.Join(";\n", this.nodes.Select(node => "\t" + node.ToString())) + "\n}";
+    }
+}
+
+public class IfNode : Node
+{
+    public Position posStart {set; get;}
+    public Position posEnd {set; get;}
+    public List<Tuple<Node, List<Node>>> blocks;
+
+    public IfNode(List<Tuple<Node, List<Node>>> nodes, Position start, Position end)
+    {
+        posStart = start;
+        posEnd = end;
+        blocks = nodes;
+    }
+
+    public T Accept<T>(IVisitor<T> visitor, Context ctx)
+    {
+        return visitor.Visit(this, ctx);
+    }
+
+    override public string ToString()
+    {
+        var strs = new List<string>();
+        foreach(var contents in blocks)
+        {
+            var cond = contents.Item1.ToString();
+            var block = string.Concat(contents.Item2.Select(a => a.ToString()));
+            strs.Add(string.Format("case {0}: {1}", cond, block));
+        }
+        return string.Join("\n", strs);
     }
 }

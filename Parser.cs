@@ -46,7 +46,39 @@ class Parser {
     {
         if(currentTok.Matches("KEYWORD", "for")) return ParseForStmnt();
         else if(currentTok.Matches("KEYWORD", "endfor")) return ParseEndForStmnt();
-        else throw new InvalidSyntaxError(currentTok.posStart.Copy(), currentTok.posEnd.Copy(), "Expected \"for\" or \"endfor\" keyword");
+        else if(currentTok.Matches("KEYWORD", "if")) return ParseIfStmnt();
+        else if(currentTok.Matches("KEYWORD", "elif")) return ParseElifStmnt();
+        else if(currentTok.Matches("KEYWORD", "endif")) return ParseEndIfStmnt();
+        else throw new InvalidSyntaxError(currentTok.posStart.Copy(), currentTok.posEnd.Copy(), "Expected \"for\", \"if\", \"elif\", \"endif\", or \"endfor\" keyword");
+    }
+
+    public TemplateToken ParseIfStmnt()
+    {
+        var posStart = currentTok.posStart.Copy();
+        if(!(currentTok.Matches("KEYWORD", "if"))) 
+            throw new InvalidSyntaxError(currentTok.posStart.Copy(), currentTok.posEnd.Copy(), "Expected \"for\" keyword");
+        this.Advance();
+        var cond = Parse();
+        return new IfCue(cond, posStart, currentTok.posEnd.Copy());
+    }
+
+    public TemplateToken ParseElifStmnt()
+    {
+        var posStart = currentTok.posStart.Copy();
+        if(!(currentTok.Matches("KEYWORD", "elif"))) 
+            throw new InvalidSyntaxError(currentTok.posStart.Copy(), currentTok.posEnd.Copy(), "Expected \"for\" keyword");
+        this.Advance();
+        var cond = Parse();
+        return new ElifCue(cond, posStart, currentTok.posEnd.Copy());
+    }
+
+    public TemplateToken ParseEndIfStmnt()
+    {
+        var posStart = currentTok.posStart.Copy();
+        if(!(currentTok.Matches("KEYWORD", "endif"))) 
+            throw new InvalidSyntaxError(currentTok.posStart.Copy(), currentTok.posEnd.Copy(), "Expected \"endfor\" keyword");
+        this.Advance();
+        return new TemplateToken(TemplateTokenType.EndIfCue, posStart, currentTok.posEnd);
     }
 
     public TemplateToken ParseForStmnt()

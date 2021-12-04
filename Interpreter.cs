@@ -85,4 +85,10 @@ public class Interpreter : IVisitor<Value>
             return new ForLoopValue(outputs, forNode.posStart, forNode.posEnd, ctx);
         } else throw new RuntimeError(forNode.posStart, forNode.posEnd, "Cannot iterate over " + possiblyIter.ToString());
     }
+
+    public Value Visit(IfNode ifNode, Context _)
+    {
+        System.Console.WriteLine(ifNode);
+        throw new System.Exception("If statement execution is still unimplemented");
+    }
 }

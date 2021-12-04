@@ -13,7 +13,13 @@ namespace TemplateSharp
             str += "\nI could go for any of the following";
             str += "\n{% for meal in meals %}";
             str += "\n  {% for ingred in meal %}";
+            str += "\n  {% if x < 3 %}";
             str += "\n  - I could go for a meal with {{ingred}}";
+            str += "\n  {% elif x < 5 %}";
+            str += "\n  - I would like to have a meal with {{ingred}}";
+            str += "\n  {% elif x < 10 %}";
+            str += "\n  - I would kill for a meal with {{ingred}}";
+            str += "\n  {% endif %}";
             str += "\n  {% endfor %}";
             str += "\n{% endfor %}";
 

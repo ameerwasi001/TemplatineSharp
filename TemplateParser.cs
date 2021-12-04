@@ -1,3 +1,4 @@
+using System;
 using System.Collections.Generic;
 
 public class TemplateParser
@@ -32,6 +33,7 @@ public class TemplateParser
     {
         if(currentTok.tokType == TemplateTokenType.Render) return this.ParseRenderToken();
         else if (currentTok.tokType == TemplateTokenType.ForCue) return this.ParseForLoop();
+        else if (currentTok.tokType == TemplateTokenType.IfCue) return this.ParseIfChain();
         throw new InvalidSyntaxError(currentTok.posStart, currentTok.posEnd, "Expected either an expression or a statement cue");
     }
 
@@ -60,5 +62,36 @@ public class TemplateParser
         if(currentTok.tokType != TemplateTokenType.EndForCue) throw new InvalidSyntaxError(posStart, currentTok.posEnd.Copy(), "Expected an endfor cue");
         this.Advance();
         return new ForNode(ident, iter, currentNodes, posStart, currentTok.posEnd);
+    }
+
+    private Node ParseIfChain()
+    {
+        var firstCond = currentTok.GetIfCueCond();
+        var nodes = new List<Tuple<Node, List<Node>>>();
+        var firstNodes = new List<Node>();
+        var posStart = currentTok.posStart;
+        this.Advance();
+        while(currentTok.tokType != TemplateTokenType.ElifCue && currentTok.tokType != TemplateTokenType.EndIfCue && currentTok.tokType != TemplateTokenType.EOF)
+        {
+            firstNodes.Add(this.ParseToken());
+            
+        }
+        if (currentTok.tokType == TemplateTokenType.EOF) throw new InvalidSyntaxError(posStart, currentTok.posEnd.Copy(), "Expected elif or an endif cue");
+        nodes.Add(Tuple.Create<Node, List<Node>>(firstCond, firstNodes));
+        while (currentTok.tokType == TemplateTokenType.ElifCue)
+        {
+            var currentNodes = new List<Node>();
+            var cond = currentTok.GetElifCueCond();
+            this.Advance();
+            while(currentTok.tokType != TemplateTokenType.ElifCue && currentTok.tokType != TemplateTokenType.EndIfCue && currentTok.tokType != TemplateTokenType.EOF)
+            {
+                currentNodes.Add(this.ParseToken());
+            }
+            if (currentTok.tokType == TemplateTokenType.EOF) throw new InvalidSyntaxError(posStart, currentTok.posEnd.Copy(), "Expected elif or an endif cue");
+            nodes.Add(Tuple.Create<Node, List<Node>>(cond, currentNodes));
+        }
+        if(currentTok.tokType != TemplateTokenType.EndIfCue) throw new InvalidSyntaxError(posStart, currentTok.posEnd.Copy(), string.Format("Expected en endif cue but got {0}", currentTok.tokType));
+        this.Advance();
+        return new IfNode(nodes, posStart, currentTok.posEnd.Copy());
     }
 }

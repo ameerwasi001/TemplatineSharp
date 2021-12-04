@@ -4,6 +4,9 @@ public enum TemplateTokenType
 {
     ForCue,
     EndForCue,
+    IfCue,
+    ElifCue,
+    EndIfCue,
     Render,
     EOF,
 }
@@ -34,6 +37,16 @@ public class TemplateToken
     public virtual Node GetRenderNode()
     {
         throw new Exception("This is not a render node...");
+    }
+
+    public virtual Node GetIfCueCond()
+    {
+        throw new Exception("This is not an IfCue...");
+    }
+
+    public virtual Node GetElifCueCond()
+    {
+        throw new Exception("This is not an IfCue...");
     }
 }
 
@@ -66,5 +79,35 @@ public class ForCue : TemplateToken
     override public Tuple<Token, Node> GetForCueContent()
     {
         return Tuple.Create<Token, Node>(identifier, iteratorNode);
+    }
+}
+
+public class IfCue : TemplateToken 
+{
+    public Node cond;
+
+    public IfCue(Node c, Position start, Position end) : base(TemplateTokenType.IfCue, start, end)
+    {
+        cond = c;
+    }
+
+    override public Node GetIfCueCond()
+    {
+        return cond;
+    }
+}
+
+public class ElifCue : TemplateToken 
+{
+    public Node cond;
+
+    public ElifCue(Node c, Position start, Position end) : base(TemplateTokenType.ElifCue, start, end)
+    {
+        cond = c;
+    }
+
+    override public Node GetElifCueCond()
+    {
+        return cond;
     }
 }

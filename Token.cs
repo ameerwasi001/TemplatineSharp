@@ -32,6 +32,9 @@ public class Token
         "for",
         "in",
         "endfor",
+        "if",
+        "elif",
+        "endif",
         "true",
         "false"
     };
