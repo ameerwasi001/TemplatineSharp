@@ -152,6 +152,12 @@ class Lexer
             } else if (currentChar == ">")
             {
                 tokens.Add(MakeAOrB(">", Token.TT_GT, "=", Token.TT_GTE));
+            } else if (currentChar == "!")
+            {
+                tokens.Add(MakeAOrB("!", Token.TT_NOT, "=", Token.TT_NE));
+            } else if (currentChar == "=")
+            {
+                tokens.Add(MakeAOrB("=", Token.TT_EE, "=", Token.TT_EE));
             } else if (currentChar == "<")
             {
                 tokens.Add(MakeAOrB("<", Token.TT_LT, "=", Token.TT_LTE));

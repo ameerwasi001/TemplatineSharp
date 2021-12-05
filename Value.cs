@@ -71,6 +71,16 @@ public class Value
         throw new RuntimeError(this.posStart, other.posEnd, string.Format("Cannot divide {0} and {1}", this.GetType(), other.GetType()));
     }
 
+    public virtual Value ee(Value other)
+    {
+        return new Bool(false, this.posStart, other.posEnd, context);
+    }
+
+    public virtual Value ne(Value other)
+    {
+        return new Bool(true, this.posStart, other.posEnd, context);
+    }
+
     public virtual Value gte(Value other)
     {
         throw new RuntimeError(this.posStart, other.posEnd, string.Format("Cannot use >= with {0} and {1}", this.GetType(), other.GetType()));
@@ -197,6 +207,18 @@ public class Number : Value
         return new Bool(this.num >= ((Number)other).num, this.posStart, other.posEnd, other.context);
     }
 
+    override public Value ee(Value other)
+    {
+        if (!(other is Number)) base.ee(other);
+        return new Bool(this.num == ((Number)other).num, this.posStart, other.posEnd, other.context);
+    }
+
+    override public Value ne(Value other)
+    {
+        if (!(other is Number)) base.ne(other);
+        return new Bool(this.num != ((Number)other).num, this.posStart, other.posEnd, other.context);
+    }
+
     override public Value gt(Value other)
     {
         if (!(other is Number)) base.gt(other);
@@ -239,6 +261,18 @@ public class Str : Value, IterableValue
     public new static Str Construct(string given)
     {
         return new Str(given, Position.Nothing(), Position.Nothing(), new Context());
+    }
+
+    override public Value ee(Value other)
+    {
+        if (!(other is Str)) base.ee(other);
+        return new Bool(this.str == ((Str)other).str, this.posStart, other.posEnd, other.context);
+    }
+
+    override public Value ne(Value other)
+    {
+        if (!(other is Str)) base.ne(other);
+        return new Bool(this.str != ((Str)other).str, this.posStart, other.posEnd, other.context);
     }
 
     public override string ToString()

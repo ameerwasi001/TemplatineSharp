@@ -20,14 +20,18 @@ namespace TemplateSharp
             str += "\n  {% elif x < 10 %}";
             str += "\n  - I would love a meal with {{ingred}}";
             str += "\n  {% else %}";
-            str += "\n  - I would kill for a meal with {{ingred}}";
+            str += "  {% if name == \"Ameer\" %}";
+            str += "  - Ameer would kill for a meal with {{ingred}}";
+            str += "  {% else %}";
+            str += "  - I would kill for a meal with {{ingred}}";
+            str += "  {% endif %}";
             str += "\n  {% endif %}";
             str += "\n  {% endfor %}";
             str += "\n{% endfor %}";
 
             var template = new TemplateBuilder().Build(str);
             var executed = template.Execute(new Dictionary<string, Value>{
-                {"x", Value.Construct(7)},
+                {"x", Value.Construct(11)},
                 {"name", Value.Construct("Ameer")},
                 {"meals", Value.Construct(new List<Value>(){
                     Value.Construct(new List<Value>(){Value.Construct("Tuna"), Value.Construct("Salmon")}),

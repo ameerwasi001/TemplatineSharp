@@ -153,6 +153,8 @@ class Parser {
     public Node ParseCompExpr()
     {
         return BinOp(this.ParseExpression, new HashSet<string>{
+            Token.TT_EE,
+            Token.TT_NE,
             Token.TT_GT,
             Token.TT_LT,
             Token.TT_LTE,

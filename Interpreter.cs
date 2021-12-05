@@ -61,6 +61,12 @@ public class Interpreter : IVisitor<Value>
         } else if (node.op.tokType == Token.TT_LTE)
         {
             return left <= right;
+        } else if (node.op.tokType == Token.TT_EE)
+        {
+            return left.ee(right);
+        } else if (node.op.tokType == Token.TT_NE)
+        {
+            return left.ne(right);
         } else if (node.op.tokType == Token.TT_OR)
         {
             return left | right;
