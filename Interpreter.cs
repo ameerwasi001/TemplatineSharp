@@ -86,9 +86,20 @@ public class Interpreter : IVisitor<Value>
         } else throw new RuntimeError(forNode.posStart, forNode.posEnd, "Cannot iterate over " + possiblyIter.ToString());
     }
 
-    public Value Visit(IfNode ifNode, Context _)
+    public Value Visit(IfNode ifNode, Context ctx)
     {
-        System.Console.WriteLine(ifNode);
-        throw new System.Exception("If statement execution is still unimplemented");
+        // System.Console.WriteLine(ifNode);
+        foreach(var content in ifNode.blocks)
+        {
+            var cond = content.Item1;
+            var block = content.Item2;
+            if (cond.Accept(this, ctx).IsTrue())
+            {
+                var newCtx = new Context(new SymbolTable(ctx.symbolTable), "<if-stmnt>", ctx, cond.posStart);
+                return new ForLoopValue(block.Select(a => a.Accept(this, newCtx)), cond.posStart, cond.posEnd, newCtx);
+            }
+        }
+        var elseCtx = new Context(new SymbolTable(ctx.symbolTable), "<else-stmnt>", ctx, ifNode.posStart);
+        return new ForLoopValue(ifNode.elseCase.Select(a => a.Accept(this, elseCtx)), ifNode.posStart, ifNode.posEnd, elseCtx);;
     }
 }
