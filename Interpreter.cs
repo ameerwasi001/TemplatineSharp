@@ -28,6 +28,12 @@ public class Interpreter : IVisitor<Value>
         return new IteratorValue(node.list.Select(a => a.Accept(this, ctx)), node.posStart, node.posEnd, ctx);
     }
 
+    public Value Visit(ObjectNode node, Context ctx)
+    {
+        var dict = node.keyValueList.ToDictionary(kv => kv.Item1.Accept(this, ctx), kv => kv.Item2.Accept(this, ctx));
+        return new ObjectValue(dict, node.posStart, node.posEnd, ctx);
+    }
+
     public Value Visit(VarAccessNode node, Context ctx)
     {
         var val = ctx.Get(node.ident);

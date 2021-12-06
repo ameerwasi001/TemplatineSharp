@@ -23,7 +23,10 @@ public class Token
     public static string TT_LPAREN = "LPAREN";
     public static string TT_RSQUARE = "RSQUARE";
     public static string TT_LSQUARE = "LSQUARE";
+    public static string TT_RCURLY = "RCURLY";
+    public static string TT_LCURLY = "LCURLY";
     public static string TT_COMMA = "COMMA";
+    public static string TT_COLON = "COLON";
     public static string TT_PIPE = "PIPE";
     public static string TT_END = "END";
 

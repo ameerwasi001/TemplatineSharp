@@ -45,10 +45,26 @@ public class Value
         return IteratorValue.Construct(vals);
     }
 
+    public static ObjectValue Construct(Dictionary<Value, Value> vals)
+    {
+        return ObjectValue.Construct(vals);
+    }
+
     public Value setContext(Context ctx)
     {
         this.context = ctx;
         return this;
+    }
+
+    public override bool Equals(object obj)
+    {
+        if(!(obj is Value)) return false;
+        return this.ee((Value)obj).IsTrue();
+    }
+
+    public override int GetHashCode()
+    {
+        return 0;
     }
 
     public virtual Value add(Value other)
@@ -171,6 +187,11 @@ public class Number : Value
         return new Number(given, Position.Nothing(), Position.Nothing(), new Context());
     }
 
+    public override int GetHashCode()
+    {
+        return this.num.GetHashCode();
+    }
+
     public override string ToString()
     {
         return num.ToString();
@@ -252,6 +273,11 @@ public class Str : Value, IterableValue
         foreach(var ch in str) yield return new Str(ch.ToString(), posStart, posEnd, context);
     }
 
+    public override int GetHashCode()
+    {
+        return this.str.GetHashCode();
+    }
+
     override public Value add(Value other)
     {
         if (!(other is Str)) base.add(other);
@@ -290,9 +316,26 @@ public class Bool : Value
         boolean = b;
     }
 
+    public override int GetHashCode()
+    {
+        return this.boolean.GetHashCode();
+    }
+
     public new static Bool Construct(bool given)
     {
         return new Bool(given, Position.Nothing(), Position.Nothing(), new Context());
+    }
+
+    override public Value ee(Value other)
+    {
+        if (!(other is Bool)) base.ee(other);
+        return new Bool(this.boolean == ((Bool)other).boolean, this.posStart, other.posEnd, other.context);
+    }
+
+    override public Value ne(Value other)
+    {
+        if (!(other is Bool)) base.ne(other);
+        return new Bool(this.boolean != ((Bool)other).boolean, this.posStart, other.posEnd, other.context);
     }
 
     public override bool IsTrue()
@@ -328,6 +371,26 @@ public class IteratorValue : Value, IterableValue
     public override string ToString()
     {
         return "[" + string.Join(", ", elems.Select(a => a.ToString())) + "]";
+    }
+}
+
+public class ObjectValue : Value
+{
+    public Dictionary<Value, Value> dict;
+
+    public ObjectValue(Dictionary<Value, Value> vals, Position start, Position end, Context ctx) : base(start, end, ctx)
+    {
+        dict = vals;
+    }
+
+    public new static ObjectValue Construct(Dictionary<Value, Value> given)
+    {
+        return new ObjectValue(given, Position.Nothing(), Position.Nothing(), new Context());
+    }
+
+    public override string ToString()
+    {
+        return "{" + string.Join(", ", dict.Select(kv => kv.Key.ToString() + ": " + kv.Value.ToString())) + "}";
     }
 }
 

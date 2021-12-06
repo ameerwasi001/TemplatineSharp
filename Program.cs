@@ -8,7 +8,7 @@ namespace TemplateSharp
         static void Main(string[] args)
         {
             var str = "";
-            str += "The number is {{x+4.2*(2-3)}}, what's up?";
+            str += "The number is {{ {\"val\": x+4.2*(2-3)} }} and the dictionary is {{obj}}, what's up?";
             str += "\nWhere is {{name + \"'s shirt with print {{obj}}\"}}?";
             str += "\nI could go for any of the following";
             str += "\n{% for meal in meals %}";
@@ -33,6 +33,10 @@ namespace TemplateSharp
             var executed = template.Execute(new Dictionary<string, Value>{
                 {"x", Value.Construct(11)},
                 {"name", Value.Construct("Ameer")},
+                {"obj", Value.Construct(new Dictionary<Value, Value>{
+                    {Value.Construct("num"), Value.Construct(4)},
+                    {Value.Construct("str"), Value.Construct("Hello")}
+                })},
                 {"meals", Value.Construct(new List<Value>(){
                     Value.Construct(new List<Value>(){Value.Construct("Tuna"), Value.Construct("Salmon")}),
                     Value.Construct(new List<Value>(){Value.Construct("Chicken"), Value.Construct("Broccoli")}),

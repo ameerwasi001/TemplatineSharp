@@ -177,9 +177,21 @@ class Lexer
             {
                 tokens.Add(new Token(Token.TT_LSQUARE, pos.Copy(), pos.Copy()));
                 this.Advance();
+            } else if (currentChar == "{")
+            {
+                tokens.Add(new Token(Token.TT_RCURLY, pos.Copy(), pos.Copy()));
+                this.Advance();
+            } else if (currentChar == "}")
+            {
+                tokens.Add(new Token(Token.TT_LCURLY, pos.Copy(), pos.Copy()));
+                this.Advance();
             } else if (currentChar == ",")
             {
                 tokens.Add(new Token(Token.TT_COMMA, pos.Copy(), pos.Copy()));
+                this.Advance();
+            }  else if (currentChar == ":")
+            {
+                tokens.Add(new Token(Token.TT_COLON, pos.Copy(), pos.Copy()));
                 this.Advance();
             } else if (digits.Contains(currentChar[0]))
             {

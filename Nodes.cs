@@ -74,6 +74,30 @@ public class ListNode : Node
     }
 }
 
+public class ObjectNode : Node
+{
+    public List<Tuple<Node, Node>> keyValueList;
+    public Position posStart {set; get;}
+    public Position posEnd {set; get;}
+
+    public ObjectNode(List<Tuple<Node, Node>> val, Position start, Position end)
+    {
+        posStart = start;
+        posEnd = end;
+        keyValueList = val;
+    }
+
+    public T Accept<T>(IVisitor<T> visitor, Context ctx)
+    {
+        return visitor.Visit(this, ctx);
+    }
+
+    public override string ToString()
+    {
+        return "{" + string.Join(", ", keyValueList.Select(a => a.Item1.ToString() + ": " + a.Item2.ToString())) + "}";
+    }
+}
+
 public class NumNode : Node
 {
     public double num;

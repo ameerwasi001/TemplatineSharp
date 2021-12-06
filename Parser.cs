@@ -221,6 +221,16 @@ class Parser {
         {
             var nodes = ParseSeperated(Token.TT_COMMA, this.ParsePipedExpression, Token.TT_RSQUARE, Token.TT_LSQUARE);
             return new ListNode(nodes, posStart, currentTok.posEnd.Copy());
+        } else if (currentTok.tokType == Token.TT_RCURLY)
+        {
+            var nodes = ParseSeperated<Tuple<Node, Node>>(Token.TT_COMMA, () => {
+                var a = this.ParseAtom();
+                if(currentTok.tokType != Token.TT_COLON) throw new InvalidSyntaxError(currentTok.posStart, currentTok.posEnd, string.Format("Expected a colon, got {0}", currentTok.tokType));
+                this.Advance();
+                var b = this.ParsePipedExpression();
+                return Tuple.Create(a, b);
+            }, Token.TT_RCURLY, Token.TT_LCURLY);
+            return new ObjectNode(nodes, posStart, currentTok.posEnd.Copy());
         } else if (currentTok.tokType == Token.TT_STRING)
         {
             var str = currentTok;
