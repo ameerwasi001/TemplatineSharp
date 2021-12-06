@@ -50,6 +50,30 @@ public class BoolNode : Node
     }
 }
 
+public class ListNode : Node
+{
+    public List<Node> list;
+    public Position posStart {set; get;}
+    public Position posEnd {set; get;}
+
+    public ListNode(List<Node> val, Position start, Position end)
+    {
+        posStart = start;
+        posEnd = end;
+        list = val;
+    }
+
+    public T Accept<T>(IVisitor<T> visitor, Context ctx)
+    {
+        return visitor.Visit(this, ctx);
+    }
+
+    public override string ToString()
+    {
+        return "[" + string.Join(", ", list.Select(a => a.ToString())) + "]";
+    }
+}
+
 public class NumNode : Node
 {
     public double num;

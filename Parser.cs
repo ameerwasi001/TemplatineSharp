@@ -140,6 +140,27 @@ class Parser {
         return left;
     }
 
+    private List<A> ParseSeperated<A>(string sep, Func<A> f, string begin, string end)
+    {
+        if(currentTok.tokType != begin) throw new InvalidSyntaxError(currentTok.posStart, currentTok.posEnd, string.Format("Expected a {0} token, got {1}", begin, currentTok.tokType));
+        this.Advance();
+        var ls = new List<A>();
+        if(currentTok.tokType == end) 
+        {
+            this.Advance();
+            return ls;
+        }
+        ls.Add(f());
+        while(currentTok.tokType == sep)
+        {
+            this.Advance();
+            ls.Add(f());
+        }
+        if(currentTok.tokType != end) throw new InvalidSyntaxError(currentTok.posStart, currentTok.posEnd, string.Format("Expected a {0} token, got {1}", end, currentTok.tokType));
+        this.Advance();
+        return ls;
+    }
+
     public Node ParsePipedExpression()
     {
         return BinOp(this.ParseLogicExpr, new HashSet<string>{Token.TT_PIPE}, this.ParseLogicExpr);
@@ -196,6 +217,10 @@ class Parser {
             var ident = currentTok;
             this.Advance();
             return new VarAccessNode(ident.value, posStart, currentTok.posEnd.Copy());
+        } else if (currentTok.tokType == Token.TT_RSQUARE)
+        {
+            var nodes = ParseSeperated(Token.TT_COMMA, this.ParsePipedExpression, Token.TT_RSQUARE, Token.TT_LSQUARE);
+            return new ListNode(nodes, posStart, currentTok.posEnd.Copy());
         } else if (currentTok.tokType == Token.TT_STRING)
         {
             var str = currentTok;

@@ -327,15 +327,15 @@ public class IteratorValue : Value, IterableValue
 
     public override string ToString()
     {
-        return string.Join(",", elems.Select(a => a.ToString()));
+        return "[" + string.Join(", ", elems.Select(a => a.ToString())) + "]";
     }
 }
 
-public class ForLoopValue : Value, IterableValue
+public class BlockValue : Value, IterableValue
 {
     public IEnumerable<Value> values;
 
-    public ForLoopValue(IEnumerable<Value> nodes, Position start, Position end, Context ctx) : base(start, end, ctx)
+    public BlockValue(IEnumerable<Value> nodes, Position start, Position end, Context ctx) : base(start, end, ctx)
     {
         values = nodes;
     }
@@ -345,9 +345,9 @@ public class ForLoopValue : Value, IterableValue
         return values;
     }
 
-    public new static ForLoopValue Construct(IEnumerable<Value> given)
+    public new static BlockValue Construct(IEnumerable<Value> given)
     {
-        return new ForLoopValue(given, Position.Nothing(), Position.Nothing(), new Context());
+        return new BlockValue(given, Position.Nothing(), Position.Nothing(), new Context());
     }
 
     public override string ToString()

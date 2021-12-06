@@ -23,6 +23,11 @@ public class Interpreter : IVisitor<Value>
         return new Str(node.str, node.posStart, node.posEnd, ctx);
     }
 
+    public Value Visit(ListNode node, Context ctx)
+    {
+        return new IteratorValue(node.list.Select(a => a.Accept(this, ctx)), node.posStart, node.posEnd, ctx);
+    }
+
     public Value Visit(VarAccessNode node, Context ctx)
     {
         var val = ctx.Get(node.ident);
@@ -88,7 +93,7 @@ public class Interpreter : IVisitor<Value>
                 newCtx.Set(forNode.ident.value, value);
                 foreach(var node in nodes) outputs.Add(node.Accept(this, newCtx));
             }
-            return new ForLoopValue(outputs, forNode.posStart, forNode.posEnd, ctx);
+            return new BlockValue(outputs, forNode.posStart, forNode.posEnd, ctx);
         } else throw new RuntimeError(forNode.posStart, forNode.posEnd, "Cannot iterate over " + possiblyIter.ToString());
     }
 
@@ -102,10 +107,10 @@ public class Interpreter : IVisitor<Value>
             if (cond.Accept(this, ctx).IsTrue())
             {
                 var newCtx = new Context(new SymbolTable(ctx.symbolTable), "<if-stmnt>", ctx, cond.posStart);
-                return new ForLoopValue(block.Select(a => a.Accept(this, newCtx)), cond.posStart, cond.posEnd, newCtx);
+                return new BlockValue(block.Select(a => a.Accept(this, newCtx)), cond.posStart, cond.posEnd, newCtx);
             }
         }
         var elseCtx = new Context(new SymbolTable(ctx.symbolTable), "<else-stmnt>", ctx, ifNode.posStart);
-        return new ForLoopValue(ifNode.elseCase.Select(a => a.Accept(this, elseCtx)), ifNode.posStart, ifNode.posEnd, elseCtx);;
+        return new BlockValue(ifNode.elseCase.Select(a => a.Accept(this, elseCtx)), ifNode.posStart, ifNode.posEnd, elseCtx);;
     }
 }

@@ -169,6 +169,18 @@ class Lexer
             {
                 tokens.Add(new Token(Token.TT_LPAREN, pos.Copy(), pos.Copy()));
                 this.Advance();
+            } else if (currentChar == "[")
+            {
+                tokens.Add(new Token(Token.TT_RSQUARE, pos.Copy(), pos.Copy()));
+                this.Advance();
+            } else if (currentChar == "]")
+            {
+                tokens.Add(new Token(Token.TT_LSQUARE, pos.Copy(), pos.Copy()));
+                this.Advance();
+            } else if (currentChar == ",")
+            {
+                tokens.Add(new Token(Token.TT_COMMA, pos.Copy(), pos.Copy()));
+                this.Advance();
             } else if (digits.Contains(currentChar[0]))
             {
                 tokens.Add(this.MakeNumber());
