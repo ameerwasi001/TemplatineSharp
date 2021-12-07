@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Generic;
 
 public enum TemplateTokenType 
 {
@@ -30,7 +31,7 @@ public class TemplateToken
         return new TemplateToken(TemplateTokenType.EOF, Position.Nothing(), Position.Nothing());
     }
 
-    public virtual Tuple<Token, Node> GetForCueContent()
+    public virtual Tuple<List<Token>, Node> GetForCueContent()
     {
         throw new Exception("This is not a for cue...");
     }
@@ -69,17 +70,17 @@ public class RenderToken : TemplateToken
 public class ForCue : TemplateToken 
 {
     public Node iteratorNode;
-    public Token identifier;
+    public List<Token> identifiers;
 
-    public ForCue(Token ident, Node node, Position start, Position end) : base(TemplateTokenType.ForCue, start, end)
+    public ForCue(List<Token> idents, Node node, Position start, Position end) : base(TemplateTokenType.ForCue, start, end)
     {
         iteratorNode = node;
-        identifier = ident;
+        identifiers = idents;
     }
 
-    override public Tuple<Token, Node> GetForCueContent()
+    override public Tuple<List<Token>, Node> GetForCueContent()
     {
-        return Tuple.Create<Token, Node>(identifier, iteratorNode);
+        return Tuple.Create<List<Token>, Node>(identifiers, iteratorNode);
     }
 }
 

@@ -94,18 +94,27 @@ class Parser {
     public TemplateToken ParseForStmnt()
     {
         var posStart = currentTok.posStart.Copy();
+        var tokList = new List<Token>();
         if(!(currentTok.Matches("KEYWORD", "for"))) 
             throw new InvalidSyntaxError(currentTok.posStart.Copy(), currentTok.posEnd.Copy(), "Expected \"for\" keyword");
         this.Advance();
-        if(currentTok.tokType != "IDENT")
+        if(currentTok.tokType != Token.TT_IDENT)
             throw new InvalidSyntaxError(currentTok.posStart.Copy(), currentTok.posEnd.Copy(), "Expected an identifier");
         var ident = currentTok;
+        tokList.Add(ident);
         this.Advance();
+        while(currentTok.tokType == Token.TT_COMMA)
+        {
+            this.Advance();
+            if(currentTok.tokType != Token.TT_IDENT) throw new InvalidSyntaxError(currentTok.posStart.Copy(), currentTok.posEnd.Copy(), "Expected an identifier");
+            tokList.Add(currentTok);
+            this.Advance();
+        }
         if(!(currentTok.Matches("KEYWORD", "in"))) 
             throw new InvalidSyntaxError(currentTok.posStart.Copy(), currentTok.posEnd.Copy(), "Expected \"in\" keyword");
         this.Advance();
         var iteratorNode = Parse();
-        return new ForCue(ident, iteratorNode, posStart, currentTok.posEnd);
+        return new ForCue(tokList, iteratorNode, posStart, currentTok.posEnd);
     }
 
     public TemplateToken ParseEndForStmnt()

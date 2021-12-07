@@ -223,19 +223,19 @@ public class BinOpNode : Node
 
 public class ForNode : Node
 {
-    public Token ident;
+    public List<Token> idents;
     public Node iterNode;
     public List<Node> nodes;
     public Position posStart {set; get;}
     public Position posEnd {set; get;}
 
-    public ForNode(Token id, Node iter, List<Node> ns, Position start, Position end)
+    public ForNode(List<Token> id, Node iter, List<Node> ns, Position start, Position end)
     {
         posStart = start;
         posEnd = end;
         nodes = ns;
         iterNode = iter;
-        ident = id;
+        idents = id;
     }
 
     public T Accept<T>(IVisitor<T> visitor, Context ctx)
@@ -245,7 +245,7 @@ public class ForNode : Node
 
     public override string ToString()
     {
-        return "for " + ident.ToString() + " in " + iterNode.ToString() + " {\n" + string.Join(";\n", this.nodes.Select(node => "\t" + node.ToString())) + "\n}";
+        return "for " + string.Join(", ", idents.Select(x => x.ToString())) + " in " + iterNode.ToString() + " {\n" + string.Join(";\n", this.nodes.Select(node => "\t" + node.ToString())) + "\n}";
     }
 }
 

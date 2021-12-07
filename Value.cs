@@ -2,7 +2,7 @@ using System.Collections.Generic;
 using System.Linq;
 
 public interface IterableValue {
-    IEnumerable<Value> GetIter();
+    IEnumerable<List<Value>> GetIter();
 }
 
 public class Value 
@@ -274,9 +274,9 @@ public class Str : Value, IterableValue
         str = val;
     }
 
-    public IEnumerable<Value> GetIter()
+    public IEnumerable<List<Value>> GetIter()
     {
-        foreach(var ch in str) yield return new Str(ch.ToString(), posStart, posEnd, context);
+        foreach(var ch in str) yield return new List<Value>(){new Str(ch.ToString(), posStart, posEnd, context)};
     }
 
     public override int GetHashCode()
@@ -364,9 +364,9 @@ public class IteratorValue : Value, IterableValue
         elems = nodes;
     }
 
-    public IEnumerable<Value> GetIter()
+    public IEnumerable<List<Value>> GetIter()
     {
-        return elems;
+        return elems.Select(a => new List<Value>(){a});
     }
 
     public new static IteratorValue Construct(IEnumerable<Value> given)
@@ -380,7 +380,7 @@ public class IteratorValue : Value, IterableValue
     }
 }
 
-public class ObjectValue : Value
+public class ObjectValue : Value, IterableValue
 {
     public Dictionary<Value, Value> dict;
 
@@ -394,6 +394,11 @@ public class ObjectValue : Value
         var str = new Str(prop, posStart, posEnd, context);
         if (!this.dict.ContainsKey(str)) throw new RuntimeError(posStart, posEnd, string.Format("{0} does not contain {1}", this.ToString(), prop));
         return this.dict[str];
+    }
+
+    public IEnumerable<List<Value>> GetIter()
+    {
+        return dict.Select(kv => new List<Value>(){kv.Key, kv.Value});
     }
 
     public new static ObjectValue Construct(Dictionary<Value, Value> given)
@@ -416,9 +421,9 @@ public class BlockValue : Value, IterableValue
         values = nodes;
     }
 
-    public IEnumerable<Value> GetIter()
+    public IEnumerable<List<Value>> GetIter()
     {
-        return values;
+        return values.Select(a => new List<Value>(){a});
     }
 
     public new static BlockValue Construct(IEnumerable<Value> given)

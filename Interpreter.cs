@@ -102,10 +102,12 @@ public class Interpreter : IVisitor<Value>
         if(possiblyIter is IterableValue) {
             var iter = (IterableValue)possiblyIter;
             var outputs = new List<Value>();
-            foreach(var value in iter.GetIter())
+            foreach(var values in iter.GetIter())
             {
                 var newCtx = new Context(new SymbolTable(ctx.symbolTable), "<for-loop>", ctx, forNode.posStart);
-                newCtx.Set(forNode.ident.value, value);
+                if(values.Count != forNode.idents.Count) 
+                    throw new RuntimeError(forNode.posStart, forNode.posEnd, string.Format("Cannot unpack {0} values to {1} names", values.Count, forNode.idents.Count));
+                foreach(var ab in forNode.idents.Zip(values)) newCtx.Set(ab.First.value, ab.Second);
                 foreach(var node in nodes) outputs.Add(node.Accept(this, newCtx));
             }
             return new BlockValue(outputs, forNode.posStart, forNode.posEnd, ctx);
