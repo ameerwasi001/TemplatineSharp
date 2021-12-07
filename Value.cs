@@ -25,6 +25,11 @@ public class Value
         return this;
     }
 
+    virtual public Value LookupString(string prop)
+    {
+        throw new RuntimeError(posStart, posEnd, string.Format("Cannot perform a lookup on {0}", this.GetType()));
+    }
+
     public static Number Construct(int i)
     {
         return Number.Construct(i);
@@ -230,13 +235,14 @@ public class Number : Value
 
     override public Value ee(Value other)
     {
-        if (!(other is Number)) base.ee(other);
+        if (!(other is Number)) return base.ee(other);
+        System.Console.WriteLine();
         return new Bool(this.num == ((Number)other).num, this.posStart, other.posEnd, other.context);
     }
 
     override public Value ne(Value other)
     {
-        if (!(other is Number)) base.ne(other);
+        if (!(other is Number)) return base.ne(other);
         return new Bool(this.num != ((Number)other).num, this.posStart, other.posEnd, other.context);
     }
 
@@ -291,13 +297,13 @@ public class Str : Value, IterableValue
 
     override public Value ee(Value other)
     {
-        if (!(other is Str)) base.ee(other);
+        if (!(other is Str)) return base.ee(other);
         return new Bool(this.str == ((Str)other).str, this.posStart, other.posEnd, other.context);
     }
 
     override public Value ne(Value other)
     {
-        if (!(other is Str)) base.ne(other);
+        if (!(other is Str)) return base.ne(other);
         return new Bool(this.str != ((Str)other).str, this.posStart, other.posEnd, other.context);
     }
 
@@ -328,13 +334,13 @@ public class Bool : Value
 
     override public Value ee(Value other)
     {
-        if (!(other is Bool)) base.ee(other);
+        if (!(other is Bool)) return base.ee(other);
         return new Bool(this.boolean == ((Bool)other).boolean, this.posStart, other.posEnd, other.context);
     }
 
     override public Value ne(Value other)
     {
-        if (!(other is Bool)) base.ne(other);
+        if (!(other is Bool)) return base.ne(other);
         return new Bool(this.boolean != ((Bool)other).boolean, this.posStart, other.posEnd, other.context);
     }
 
@@ -381,6 +387,13 @@ public class ObjectValue : Value
     public ObjectValue(Dictionary<Value, Value> vals, Position start, Position end, Context ctx) : base(start, end, ctx)
     {
         dict = vals;
+    }
+
+    override public Value LookupString(string prop)
+    {
+        var str = new Str(prop, posStart, posEnd, context);
+        if (!this.dict.ContainsKey(str)) throw new RuntimeError(posStart, posEnd, string.Format("{0} does not contain {1}", this.ToString(), prop));
+        return this.dict[str];
     }
 
     public new static ObjectValue Construct(Dictionary<Value, Value> given)

@@ -144,6 +144,31 @@ public class VarAccessNode : Node
     }
 }
 
+public class AccessProperty : Node
+{
+    public List<string> accessors;
+    public Node node;
+    public Position posStart {set; get;}
+    public Position posEnd {set; get;}
+    public AccessProperty(Node given, List<string> accs, Position start, Position end)
+    {
+        posStart = start;
+        posEnd = end;
+        accessors = accs;
+        node = given;
+    }
+
+    public T Accept<T>(IVisitor<T> visitor, Context ctx)
+    {
+        return visitor.Visit(this, ctx);
+    }
+
+    public override string ToString()
+    {
+        return string.Format("{0}.{1}", node.ToString(), string.Join(".", this.accessors));
+    }
+}
+
 public class RenderNode : Node
 {
     public Node renderNode;

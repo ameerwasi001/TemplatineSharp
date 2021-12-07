@@ -3,11 +3,14 @@ using System.Collections.Generic;
 
 class Lexer 
 {
-    static HashSet<char> digits = new HashSet<char>{'1', '2', '3', '4', '5', '6', '7', '8', '9', '0', '.'};
+    static HashSet<char> digits = new HashSet<char>{'1', '2', '3', '4', '5', '6', '7', '8', '9', '0'};
+    static HashSet<char> extendedDigits = new HashSet<char>{'1', '2', '3', '4', '5', '6', '7', '8', '9', '0', 'e', '.'};
     static HashSet<char> alphabets = new HashSet<char>{
         'a', 'b', 'c', 'd', 'e', 'f', 'g', 'h', 'i', 'j', 'k',
         'l', 'm', 'n', 'o', 'p', 'q', 'r', 's', 't', 'u', 'v',
-        'w', 'x', 'y', 'z'
+        'w', 'x', 'y', 'z', 'A', 'B', 'C', 'D', 'E', 'F', 'G',
+        'H', 'I', 'J', 'K', 'L', 'M', 'N', 'O', 'P', 'Q', 'R',
+        'S', 'T', 'U', 'V', 'W', 'X', 'Y', 'Z'
     };
     static HashSet<char> whitespace = new HashSet<char>{
         '\t', ' ', '\n', '\r',
@@ -40,7 +43,7 @@ class Lexer
         var number_str = "";
         var dot_count = 0;
         var e_count = 0;
-        while (digits.Contains(currentChar[0]) || currentChar == ".")
+        while (extendedDigits.Contains(currentChar[0]))
         {
             if (currentChar == ".") dot_count+=1;
             if (currentChar == "e") e_count+=1;
@@ -102,7 +105,7 @@ class Lexer
     {
         var pos_start = pos.Copy();
         var id_str = "";
-        while (alphabets.Contains(currentChar[0]))
+        while (currentChar != Token.TT_END && alphabets.Contains(currentChar[0]))
         {
             id_str += currentChar;
             this.Advance();
@@ -192,6 +195,10 @@ class Lexer
             }  else if (currentChar == ":")
             {
                 tokens.Add(new Token(Token.TT_COLON, pos.Copy(), pos.Copy()));
+                this.Advance();
+            } else if (currentChar == ".")
+            {
+                tokens.Add(new Token(Token.TT_DOT, pos.Copy(), pos.Copy()));
                 this.Advance();
             } else if (digits.Contains(currentChar[0]))
             {

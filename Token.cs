@@ -5,6 +5,7 @@ public class Token
     public static string TT_NUMBER = "NUMBER";
     public static string TT_IDENT = "IDENT";
     public static string TT_KEYWORD = "KEYWORD";
+    public static string TT_DOT = "DOT";
     public static string TT_EE = "EE";
     public static string TT_NE = "NE";
     public static string TT_GT = "GT";

@@ -34,6 +34,15 @@ public class Interpreter : IVisitor<Value>
         return new ObjectValue(dict, node.posStart, node.posEnd, ctx);
     }
 
+    public Value Visit(AccessProperty node, Context ctx)
+    {
+        var val = node.node.Accept(this, ctx);
+        foreach(var prop in node.accessors){
+            val = val.LookupString(prop);
+        }
+        return val;
+    }
+
     public Value Visit(VarAccessNode node, Context ctx)
     {
         var val = ctx.Get(node.ident);

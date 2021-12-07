@@ -201,26 +201,27 @@ class Parser {
     public Node ParseAtom()
     {
         var posStart = currentTok.posStart.Copy();
+        Node res;
         if (currentTok.tokType == Token.TT_NUMBER)
         {
             var num = currentTok;
             this.Advance();
-            return new NumNode(Double.Parse(num.value), posStart, currentTok.posEnd.Copy());
+            res = new NumNode(Double.Parse(num.value), posStart, currentTok.posEnd.Copy());
         } else if (currentTok.tokType == Token.TT_RPAREN) {
             this.Advance();
             var node = this.ParsePipedExpression();
             if (currentTok.tokType != Token.TT_LPAREN) throw new InvalidSyntaxError(currentTok.posStart.Copy(), currentTok.posEnd.Copy(), "Expected a ) token");
             this.Advance();
-            return node;
+            res = node;
         } else if (currentTok.tokType == Token.TT_IDENT)
         {
             var ident = currentTok;
             this.Advance();
-            return new VarAccessNode(ident.value, posStart, currentTok.posEnd.Copy());
+            res = new VarAccessNode(ident.value, posStart, currentTok.posEnd.Copy());
         } else if (currentTok.tokType == Token.TT_RSQUARE)
         {
             var nodes = ParseSeperated(Token.TT_COMMA, this.ParsePipedExpression, Token.TT_RSQUARE, Token.TT_LSQUARE);
-            return new ListNode(nodes, posStart, currentTok.posEnd.Copy());
+            res = new ListNode(nodes, posStart, currentTok.posEnd.Copy());
         } else if (currentTok.tokType == Token.TT_RCURLY)
         {
             var nodes = ParseSeperated<Tuple<Node, Node>>(Token.TT_COMMA, () => {
@@ -230,20 +231,30 @@ class Parser {
                 var b = this.ParsePipedExpression();
                 return Tuple.Create(a, b);
             }, Token.TT_RCURLY, Token.TT_LCURLY);
-            return new ObjectNode(nodes, posStart, currentTok.posEnd.Copy());
+            res = new ObjectNode(nodes, posStart, currentTok.posEnd.Copy());
         } else if (currentTok.tokType == Token.TT_STRING)
         {
             var str = currentTok;
             this.Advance();
-            return new StrNode(str.value, posStart, currentTok.posEnd.Copy());
+            res = new StrNode(str.value, posStart, currentTok.posEnd.Copy());
         } else if (currentTok.Matches("KEYWORD", "true") || currentTok.Matches("KEYWORD", "false"))
         {
             var boolTok = currentTok;
             this.Advance();
-            return new BoolNode(boolTok.value == "true", posStart, currentTok.posEnd.Copy());
+            res = new BoolNode(boolTok.value == "true", posStart, currentTok.posEnd.Copy());
         } else
         {
             throw new InvalidSyntaxError(currentTok.posStart.Copy(), currentTok.posEnd.Copy(), "Expected a NUMBER token");
         }
+
+        var accessors = new List<String>();
+        while(currentTok.tokType == Token.TT_DOT)
+        {
+            this.Advance();
+            if(currentTok.tokType != Token.TT_IDENT) throw new InvalidSyntaxError(posStart, currentTok.posEnd, string.Format("Expected an identifier, got {0}", currentTok.tokType));
+            accessors.Add(currentTok.value);
+            this.Advance();
+        }
+        return accessors.Count == 0 ? res : new AccessProperty(res, accessors, posStart, currentTok.posEnd);
     }
 }
