@@ -114,9 +114,14 @@ public class Interpreter : IVisitor<Value>
         } else throw new RuntimeError(forNode.posStart, forNode.posEnd, "Cannot iterate over " + possiblyIter.ToString());
     }
 
+    public Value Visit(CallNode callNode, Context ctx)
+    {
+        System.Console.WriteLine(callNode);
+        throw new System.Exception("Calls are still not implemented");
+    }
+
     public Value Visit(IfNode ifNode, Context ctx)
     {
-        // System.Console.WriteLine(ifNode);
         foreach(var content in ifNode.blocks)
         {
             var cond = content.Item1;

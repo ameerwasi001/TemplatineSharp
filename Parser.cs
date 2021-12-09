@@ -263,7 +263,14 @@ class Parser {
             if(currentTok.tokType != Token.TT_IDENT) throw new InvalidSyntaxError(posStart, currentTok.posEnd, string.Format("Expected an identifier, got {0}", currentTok.tokType));
             accessors.Add(currentTok.value);
             this.Advance();
+            while(currentTok.tokType == Token.TT_RPAREN) {
+                var newRes = accessors.Count == 0 ? res : new AccessProperty(res, accessors, posStart, currentTok.posEnd);
+                var callNode = new CallNode(newRes, ParseSeperated(Token.TT_COMMA, this.ParsePipedExpression, Token.TT_RPAREN, Token.TT_LPAREN), posStart, currentTok.posEnd.Copy());
+                res = callNode;
+                accessors = new List<String>();
+            }
         }
-        return accessors.Count == 0 ? res : new AccessProperty(res, accessors, posStart, currentTok.posEnd);
+        res = accessors.Count == 0 ? res : new AccessProperty(res, accessors, posStart, currentTok.posEnd);
+        return res;
     }
 }

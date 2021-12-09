@@ -15,6 +15,11 @@ public class Template {
         var ctx = new Context(model == null ? new Dictionary<string, Value>() : model);
         return string.Concat(this.nodes.Select(a => a.Accept(interpreter, ctx)).Select(a => a.ToString()));
     }
+
+    override public string ToString()
+    {
+        return string.Join("\n", this.nodes.Select(a => a.ToString()));
+    }
 }
 
 class TemplateBuilder

@@ -281,3 +281,30 @@ public class IfNode : Node
         return string.Join("\n", strs) + string.Format("\nelse: {0}", string.Concat(elseCase.Select(a => a.ToString())));
     }
 }
+
+public class CallNode : Node
+{
+    public Position posStart {set; get;}
+    public Position posEnd {set; get;}
+    public Node callee;
+    public List<Node> args;
+
+    public CallNode(Node node, List<Node> givenArgs, Position start, Position end)
+    {
+        posStart = start;
+        posEnd = end;
+        callee = node;
+        args = givenArgs;
+    }
+
+    public T Accept<T>(IVisitor<T> visitor, Context ctx)
+    {
+        return visitor.Visit(this, ctx);
+    }
+
+    override public string ToString()
+    {
+        var str = args.Count == 0 ? "" : args.Select(a => a.ToString()).Aggregate((str, obj) => str + "," + obj.ToString());;
+        return string.Format("\n{0}({1})", callee.ToString(), str);
+    }
+}

@@ -18,4 +18,5 @@ public interface IVisitor<T>
     T Visit(RenderNode node, Context ctx);
     T Visit(ForNode node, Context ctx);
     T Visit(IfNode node, Context ctx);
+    T Visit(CallNode node, Context ctx);
 }
