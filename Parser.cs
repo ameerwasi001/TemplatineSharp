@@ -271,6 +271,8 @@ class Parser {
             }
         }
         res = accessors.Count == 0 ? res : new AccessProperty(res, accessors, posStart, currentTok.posEnd);
+        while(currentTok.tokType == Token.TT_RPAREN)
+            res = new CallNode(res, ParseSeperated(Token.TT_COMMA, this.ParsePipedExpression, Token.TT_RPAREN, Token.TT_LPAREN), posStart, currentTok.posEnd.Copy());
         return res;
     }
 }
