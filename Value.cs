@@ -1,9 +1,15 @@
+using System;
 using System.Collections.Generic;
 using System.Linq;
 
 public interface IterableValue {
     IEnumerable<List<Value>> GetIter();
 }
+
+public interface Callable {
+    Value Execute(List<Value> parameters);
+}
+
 
 public class Value 
 {
@@ -25,12 +31,36 @@ public class Value
         return this;
     }
 
+    public double GetDouble()
+    {
+        if(this is Number) return ((Number)this).num;
+        else throw new RuntimeError(posStart, posEnd, string.Format("Expected a Number, got {0}", this.GetType()));
+    }
+
+    public string GetString()
+    {
+        if(this is Str) return ((Str)this).str;
+        else throw new RuntimeError(posStart, posEnd, string.Format("Expected a Str, got {0}", this.GetType()));
+    }
+
+    public bool GetBool()
+    {
+        if(this is Bool) return ((Bool)this).boolean;
+        else throw new RuntimeError(posStart, posEnd, string.Format("Expected a Bool, got {0}", this.GetType()));
+    }
+
+    public Value Call(List<Value> vals)
+    {
+        if(this is Callable) return ((Callable)this).Execute(vals);
+        else throw new RuntimeError(posStart, posEnd, string.Format("Cannot Call {0}", this.GetType()));
+    }
+
     virtual public Value LookupString(string prop)
     {
         throw new RuntimeError(posStart, posEnd, string.Format("Cannot perform a lookup on {0}", this.GetType()));
     }
 
-    public static Number Construct(int i)
+    public static Number Construct(double i)
     {
         return Number.Construct(i);
     }
@@ -53,6 +83,16 @@ public class Value
     public static ObjectValue Construct(Dictionary<Value, Value> vals)
     {
         return ObjectValue.Construct(vals);
+    }
+
+    public static FunctionValue Construct(int? paramsCount, Func<List<Value>, Value> f)
+    {
+        return FunctionValue.Construct(paramsCount, f);
+    }
+
+    public static FunctionValue Construct(Func<List<Value>, Value> f)
+    {
+        return FunctionValue.Construct(null, f);
     }
 
     public Value setContext(Context ctx)
@@ -176,18 +216,27 @@ public class Value
     public static Value operator| (Value a, Value b) {
         return a.ored(b);
     }
+
+    public static implicit operator double(Value a) => a.GetDouble();
+    public static implicit operator Value(double a) => Value.Construct(a);
+
+    public static implicit operator string(Value a) => a.GetString();
+    public static implicit operator Value(string a) => Value.Construct(a);
+
+    public static implicit operator bool(Value a) => a.GetBool();
+    public static implicit operator Value(bool a) => Value.Construct(a);
 }
 
-public class Number : Value
+sealed public class Number : Value
 {
-    private double num;
+    public double num;
 
     public Number(double given, Position start, Position end, Context ctx) : base(start, end, ctx)
     {
         num = given;
     }
 
-    public static Number Construct(double given)
+    public static new Number Construct(double given)
     {
         return new Number(given, Position.Nothing(), Position.Nothing(), new Context());
     }
@@ -265,7 +314,7 @@ public class Number : Value
     }
 }
 
-public class Str : Value, IterableValue
+sealed public class Str : Value, IterableValue
 {
     public string str;
 
@@ -313,7 +362,7 @@ public class Str : Value, IterableValue
     }
 }
 
-public class Bool : Value
+sealed public class Bool : Value
 {
     public bool boolean;
 
@@ -355,7 +404,7 @@ public class Bool : Value
     }
 }
 
-public class IteratorValue : Value, IterableValue
+sealed public class IteratorValue : Value, IterableValue
 {
     public IEnumerable<Value> elems;
 
@@ -412,7 +461,38 @@ public class ObjectValue : Value, IterableValue
     }
 }
 
-public class BlockValue : Value, IterableValue
+sealed public class FunctionValue : Value, Callable {
+    int? paramCount;
+    Func<List<Value>, Value> function;
+    public FunctionValue(int? count, Func<List<Value>, Value> f) : base(Position.Nothing(), Position.Nothing(), new Context())
+    {
+        paramCount = count;
+        function = f;
+    }
+
+    public FunctionValue(Func<List<Value>, Value> f) : base(Position.Nothing(), Position.Nothing(), new Context())
+    {
+        function = f;
+    }
+
+    public static new FunctionValue Construct(int? paramCount, Func<List<Value>, Value> f)
+    {
+        return new FunctionValue(paramCount, f);
+    }
+
+    public Value Execute(List<Value> vals)
+    {
+        if(paramCount != null && paramCount != vals.Count) throw new RuntimeError(Position.Nothing(), Position.Nothing(), string.Format("Expected {0}, got {1} arguments", paramCount, vals.Count));
+        return function(vals);
+    }
+
+    public override string ToString()
+    {
+        return "<function>";
+    }
+}
+
+sealed public class BlockValue : Value, IterableValue
 {
     public IEnumerable<Value> values;
 

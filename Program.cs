@@ -8,7 +8,7 @@ namespace TemplateSharp
         static void Main(string[] args)
         {
             var str = "";
-            str += "The number is {{ {\"val\": x+4.2*(2-3)} }} and the book is written by {{book.author.firstName}} {{book.author.lastName}}, what's up?";
+            str += "The number is {{ {\"val\": sin(cos(x*6+4.2*(2-3)))} }} and the book is written by {{book.author.firstName}} {{book.author.lastName}}, what's up?";
             str += "\nWhere is {{name + \"'s shirt with print {{obj}}\"}}?";
             str += "\nI could go for any of the following";
             str += "\n{% for meal in meals %}";
@@ -32,18 +32,20 @@ namespace TemplateSharp
             var template = new TemplateBuilder().Build(str);
             var executed = template.Execute(new Dictionary<string, Value>{
                 {"x", Value.Construct(11)},
-                {"name", Value.Construct("Ameer")},
+                {"name", "Ameer"},
                 {"book", Value.Construct(new Dictionary<Value, Value>{
-                    {Value.Construct("length"), Value.Construct(240)},
-                    {Value.Construct("author"), Value.Construct(new Dictionary<Value, Value>{
-                        {Value.Construct("firstName"), Value.Construct("Frank")},
-                        {Value.Construct("lastName"), Value.Construct("Herbert")},
+                    {"length", 240},
+                    {"author", Value.Construct(new Dictionary<Value, Value>{
+                        {"firstName", "Frank"},
+                        {"lastName", "Herbert"},
                     })}
                 })},
                 {"meals", Value.Construct(new List<Value>(){
-                    Value.Construct(new List<Value>(){Value.Construct("Tuna"), Value.Construct("Salmon")}),
-                    Value.Construct(new List<Value>(){Value.Construct("Chicken"), Value.Construct("Broccoli")}),
+                    Value.Construct(new List<Value>(){"Tuna", "Salmon"}),
+                    Value.Construct(new List<Value>(){"Chicken", "Broccoli"}),
                 })},
+                {"sin", Value.Construct(arr => System.Math.Sin(arr[0]))},
+                {"cos", Value.Construct(arr => System.Math.Cos(arr[0]))}
             });
             System.Console.WriteLine(executed);
         }

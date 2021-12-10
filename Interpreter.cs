@@ -116,8 +116,8 @@ public class Interpreter : IVisitor<Value>
 
     public Value Visit(CallNode callNode, Context ctx)
     {
-        System.Console.WriteLine(callNode);
-        throw new System.Exception("Calls are still not implemented");
+        var callee = callNode.callee.Accept(this, ctx);
+        return callee.Call(callNode.args.Select(a => a.Accept(this, ctx)).ToList());
     }
 
     public Value Visit(IfNode ifNode, Context ctx)
