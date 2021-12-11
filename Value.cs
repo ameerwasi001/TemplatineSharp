@@ -11,7 +11,7 @@ public interface Callable {
 }
 
 
-public class Value 
+public class Value
 {
     public Position posStart;
     public Position posEnd;
@@ -47,6 +47,24 @@ public class Value
     {
         if(this is Bool) return ((Bool)this).boolean;
         else throw new RuntimeError(posStart, posEnd, string.Format("Expected a Bool, got {0}", this.GetType()));
+    }
+
+    public IEnumerable<IEnumerable<Value>> GetIterator()
+    {
+        if(this is IterableValue) return ((IterableValue)this).GetIter();
+        else throw new RuntimeError(posStart, posEnd, string.Format("Expected an Iterable, got {0}", this.GetType()));
+    }
+
+    public IEnumerable<Value> GetList()
+    {
+        if(this is IteratorValue) return ((IteratorValue)this).elems;
+        else throw new RuntimeError(posStart, posEnd, string.Format("Expected a IteratorValue, got {0}", this.GetType()));
+    }
+
+    public IEnumerable<Value> GetObject()
+    {
+        if(this is ObjectValue) return ((ObjectValue)this).GetObject();
+        else throw new RuntimeError(posStart, posEnd, string.Format("Expected a ObjectValue, got {0}", this.GetType()));
     }
 
     public Value Call(List<Value> vals)
@@ -223,8 +241,10 @@ public class Value
     public static implicit operator string(Value a) => a.GetString();
     public static implicit operator Value(string a) => Value.Construct(a);
 
-    public static implicit operator bool(Value a) => a.GetBool();
+    public static implicit operator bool(Value a) => a.IsTrue();
     public static implicit operator Value(bool a) => Value.Construct(a);
+    public static implicit operator Value(List<Value> a) => Value.Construct(a);
+    public static implicit operator Value(Dictionary<Value, Value> a) => Value.Construct(a);
 }
 
 sealed public class Number : Value

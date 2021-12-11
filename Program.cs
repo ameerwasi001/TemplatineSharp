@@ -33,17 +33,17 @@ namespace TemplateSharp
             var executed = template.Execute(new Dictionary<string, Value>{
                 {"x", Value.Construct(11)},
                 {"name", "Ameer"},
-                {"book", Value.Construct(new Dictionary<Value, Value>{
+                {"book", new Dictionary<Value, Value>{
                     {"length", 240},
-                    {"author", Value.Construct(new Dictionary<Value, Value>{
+                    {"author", new Dictionary<Value, Value>{
                         {"firstName", "Frank"},
                         {"lastName", "Herbert"},
-                    })}
-                })},
-                {"meals", Value.Construct(new List<Value>(){
-                    Value.Construct(new List<Value>(){"Tuna", "Salmon"}),
-                    Value.Construct(new List<Value>(){"Chicken", "Broccoli"}),
-                })},
+                    }}
+                }},
+                {"meals", new List<Value>(){
+                    new List<Value>(){"Tuna", "Salmon"},
+                    new List<Value>(){"Chicken", "Broccoli"},
+                }},
                 {"sin", Value.Construct(arr => System.Math.Sin(arr[0]))},
                 {"cos", Value.Construct(arr => System.Math.Cos(arr[0]))}
             });
