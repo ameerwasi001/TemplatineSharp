@@ -1,7 +1,9 @@
+using System;
+using System.Linq;
 using System.Collections.Generic;
 
 class TemplateLexer {
-    private List<string> toks = new List<string>(){""};
+    private List<string> toks = new List<string>(){"", ""};
     private int index = 0;
     private string contents;
     private string currentChar = "";
@@ -43,9 +45,14 @@ class TemplateLexer {
         return true;
     }
 
-    private void BeginningToken(string str)
+    private void AddToken()
     {
         toks.Add("");
+    }
+
+    private void BeginningToken(string str)
+    {
+        AddToken();
         foreach(var _ in str) this.Adavnce();
         toks[toks.Count - 1] += str;
     }
@@ -54,7 +61,7 @@ class TemplateLexer {
     {
         toks[toks.Count - 1] += str;
         foreach(var _ in str) this.Adavnce();
-        toks.Add("");
+        AddToken();
     }
 
     public void SkipString()
@@ -109,7 +116,7 @@ class TemplateLexer {
                 var currentPos = pos.Copy();
                 var renderTok = new RenderToken(node, posStart, currentPos);
                 templateToks.Add(renderTok);
-            } else if (tok.StartsWith("{%") && tok.EndsWith("%}"))
+            } else if (tok.StartsWith("{%") && (tok.EndsWith("%}") || tok.EndsWith("-%}")))
             {
                 pos.Advance();
                 pos.Advance();
@@ -126,7 +133,6 @@ class TemplateLexer {
                 templateToks.Add(new RenderToken(new StrNode(tok, posStart, currentPos), posStart, currentPos));
             }
         }
-
         return templateToks;
     }
 
@@ -136,7 +142,24 @@ class TemplateLexer {
         {
             if (this.Matches("{{")) this.BeginningToken("{{");
             else if (this.Matches("}}")) this.EndingToken("}}");
-            else if (this.Matches("{%")) this.BeginningToken("{%");
+            else if (this.Matches("{%")) 
+            {
+                this.BeginningToken("{%");
+                if(currentChar == "-" || currentChar == "~")
+                {
+                    var pred = GetPred(() => currentChar == "-");
+                    var trimChars = currentChar == "-" ? new[]{'\n', '\r', '\t', ' '} : new[]{'\t', ' '};
+                    var mainChar = currentChar[0];
+                    this.Adavnce();
+                    while(new List<char>(toks[toks.Count - 2]).All(pred))
+                    {
+                        toks.RemoveAt(toks.Count - 2);
+                    }
+                    toks[toks.Count - 2] = mainChar == '-' ? toks[toks.Count - 2].TrimEnd() : toks[toks.Count - 2].TrimEnd(new[]{' ', '\t'});
+                }
+            }
+            else if (this.Matches("-%}")) this.EndingToken("-%}");
+            else if (this.Matches("~%}")) this.EndingToken("~%}");
             else if (this.Matches("%}")) this.EndingToken("%}");
             else if (currentChar == "\"") this.SkipString();
             else 
@@ -145,7 +168,34 @@ class TemplateLexer {
                 this.Adavnce();
             }
         }
-
+        var i = 0;
+        while(i < toks.Count)
+        {
+            var tok = toks[i];
+            if(tok.EndsWith("-%}") || tok.EndsWith("~%}"))
+            {
+                var pred = GetPred(() => tok.EndsWith("-%}"));
+                var mainChar = tok[0];
+                toks[i] = tok.Substring(0, tok.Length-3) + "%}";
+                var index = i+1;
+                while(index < toks.Count && toks[index].All(pred))
+                {
+                    toks[index] = "";                    
+                    i++;
+                    index++;
+                }
+                if(index < toks.Count) toks[index] = mainChar == '-' ? toks[index].TrimStart() : toks[index].TrimStart(new[]{' ', '\t'});
+            }
+            i++;
+        }
+        toks = toks.Where(a => a != "").ToList();
         return this.ToTemplateTokens(toks);
+    }
+
+    Func<char, bool> GetPred(Func<bool> p)
+    {
+        return p()
+        ? (Func<char, bool>)(x => System.Char.IsWhiteSpace(x)) 
+        : (Func<char, bool>)(x => System.Char.IsWhiteSpace(x) && (x != '\n'));
     }
 }
