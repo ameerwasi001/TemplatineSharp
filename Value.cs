@@ -24,6 +24,13 @@ public class Value
         context = ctx;
     }
 
+    public Value this[Value index] => this.Index(index);
+
+    public Value Index(Value index){
+        if(!(this is ObjectValue)) throw new RuntimeError(posStart, posEnd, string.Format("Expected an Object, got {0}", this.GetType()));
+        return ((ObjectValue)this).dict[index];
+    }
+
     public Value setPos(Position start, Position end)
     {
         this.posStart = start;
@@ -452,6 +459,7 @@ sealed public class IteratorValue : Value, IterableValue
 public class ObjectValue : Value, IterableValue
 {
     public Dictionary<Value, Value> dict;
+    public new Value this[Value index] => dict[index];
 
     public ObjectValue(Dictionary<Value, Value> vals, Position start, Position end, Context ctx) : base(start, end, ctx)
     {

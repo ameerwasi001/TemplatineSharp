@@ -8,7 +8,7 @@ namespace TemplateSharp
         static void Main(string[] args)
         {
             var str = "";
-            str += "The number is {{ {\"val\": sin(cos(x*6+4.2*(2-3)))} }} and the book is written by {{book.author.firstName}} {{book.author.lastName}}, what's up?";
+            str += "The number is {{ {\"val\": sin(cos(x*6+4.2*(2-3)))} }} and the book is written by {{index(book.author, \"firstName\")}} {{book.author.lastName}}, what's up?";
             str += "\nWhere is {{name + \"'s shirt with print {{obj}}\"}}?";
             str += "\nI could go for any of the following";
             str += "\n{% for meal in meals %}";
@@ -45,7 +45,8 @@ namespace TemplateSharp
                     new List<Value>(){"Chicken", "Broccoli"},
                 }},
                 {"sin", Value.Construct(arr => System.Math.Sin(arr[0]))},
-                {"cos", Value.Construct(arr => System.Math.Cos(arr[0]))}
+                {"cos", Value.Construct(arr => System.Math.Cos(arr[0]))},
+                {"index", Value.Construct(arr => arr[0][arr[1]])}
             });
             System.Console.WriteLine(executed);
         }
