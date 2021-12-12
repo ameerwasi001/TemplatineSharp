@@ -10,6 +10,10 @@ public interface Callable {
     Value Execute(List<Value> parameters);
 }
 
+public interface Indexable {
+    Value this[Value index] {get;}
+}
+
 
 public class Value
 {
@@ -24,11 +28,10 @@ public class Value
         context = ctx;
     }
 
-    public Value this[Value index] => this.Index(index);
-
-    public Value Index(Value index){
-        if(!(this is ObjectValue)) throw new RuntimeError(posStart, posEnd, string.Format("Expected an Object, got {0}", this.GetType()));
-        return ((ObjectValue)this).dict[index];
+    virtual public Value this[Value index] {
+        get {
+            return ((Indexable)this)[index];
+        }
     }
 
     public Value setPos(Position start, Position end)
@@ -245,6 +248,9 @@ public class Value
     public static implicit operator double(Value a) => a.GetDouble();
     public static implicit operator Value(double a) => Value.Construct(a);
 
+    public static implicit operator int(Value a) => System.Convert.ToInt32(a.GetDouble());
+    public static implicit operator Value(int a) => Value.Construct(a);
+
     public static implicit operator string(Value a) => a.GetString();
     public static implicit operator Value(string a) => Value.Construct(a);
 
@@ -431,9 +437,11 @@ sealed public class Bool : Value
     }
 }
 
-sealed public class IteratorValue : Value, IterableValue
+sealed public class IteratorValue : Value, IterableValue, Indexable
 {
     public IEnumerable<Value> elems;
+
+    override public Value this[Value i] => elems.ElementAt(i);
 
     public IteratorValue(IEnumerable<Value> nodes, Position start, Position end, Context ctx) : base(start, end, ctx)
     {
@@ -456,10 +464,11 @@ sealed public class IteratorValue : Value, IterableValue
     }
 }
 
-public class ObjectValue : Value, IterableValue
+public class ObjectValue : Value, IterableValue, Indexable
 {
     public Dictionary<Value, Value> dict;
-    public new Value this[Value index] => dict[index];
+
+    override public Value this[Value i] => dict[i];
 
     public ObjectValue(Dictionary<Value, Value> vals, Position start, Position end, Context ctx) : base(start, end, ctx)
     {
