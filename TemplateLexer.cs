@@ -96,7 +96,7 @@ class TemplateLexer {
         pos.Advance();
         foreach(var tok in toks) {
             var posStart = pos.Copy();
-            if (tok.StartsWith("{{"))
+            if (tok.StartsWith("{{") && tok.EndsWith("}}"))
             {
                 pos.Advance();
                 pos.Advance();
@@ -109,7 +109,7 @@ class TemplateLexer {
                 var currentPos = pos.Copy();
                 var renderTok = new RenderToken(node, posStart, currentPos);
                 templateToks.Add(renderTok);
-            } else if (tok.StartsWith("{%"))
+            } else if (tok.StartsWith("{%") && tok.EndsWith("%}"))
             {
                 pos.Advance();
                 pos.Advance();
