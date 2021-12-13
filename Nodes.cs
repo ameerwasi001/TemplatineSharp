@@ -15,6 +15,11 @@ public class StrNode : Node
         str = val;
     }
 
+    public Node Copy()
+    {
+        return new StrNode(str, posStart.Copy(), posEnd.Copy());
+    }
+
     public T Accept<T>(IVisitor<T> visitor, Context ctx)
     {
         return visitor.Visit(this, ctx);
@@ -37,6 +42,11 @@ public class BoolNode : Node
         posStart = start;
         posEnd = end;
         boolean = val;
+    }
+
+    public Node Copy()
+    {
+        return new BoolNode(boolean, posStart.Copy(), posEnd.Copy());
     }
 
     public T Accept<T>(IVisitor<T> visitor, Context ctx)
@@ -63,6 +73,11 @@ public class ListNode : Node
         list = val;
     }
 
+    public Node Copy()
+    {
+        return new ListNode(list.Select(a => a.Copy()).ToList(), posStart.Copy(), posEnd.Copy());
+    }
+
     public T Accept<T>(IVisitor<T> visitor, Context ctx)
     {
         return visitor.Visit(this, ctx);
@@ -85,6 +100,11 @@ public class ObjectNode : Node
         posStart = start;
         posEnd = end;
         keyValueList = val;
+    }
+
+    public Node Copy()
+    {
+        return new ObjectNode(keyValueList.Select(ab => Tuple.Create(ab.Item1.Copy(), ab.Item2.Copy())).ToList(), posStart.Copy(), posEnd.Copy());
     }
 
     public T Accept<T>(IVisitor<T> visitor, Context ctx)
@@ -110,6 +130,11 @@ public class NumNode : Node
         num = val;
     }
 
+    public Node Copy()
+    {
+        return new NumNode(num, posStart.Copy(), posEnd.Copy());
+    }
+
     public T Accept<T>(IVisitor<T> visitor, Context ctx)
     {
         return visitor.Visit(this, ctx);
@@ -131,6 +156,11 @@ public class VarAccessNode : Node
         posStart = start;
         posEnd = end;
         ident = name;
+    }
+
+    public Node Copy()
+    {
+        return new VarAccessNode(ident, posStart.Copy(), posEnd.Copy());
     }
 
     public T Accept<T>(IVisitor<T> visitor, Context ctx)
@@ -158,6 +188,11 @@ public class AccessProperty : Node
         node = given;
     }
 
+    public Node Copy()
+    {
+        return new AccessProperty(node.Copy(), accessors.Select(a => a).ToList(), posStart.Copy(), posEnd.Copy());
+    }
+
     public T Accept<T>(IVisitor<T> visitor, Context ctx)
     {
         return visitor.Visit(this, ctx);
@@ -180,6 +215,11 @@ public class RenderNode : Node
         posStart = start;
         posEnd = end;
         renderNode = node;
+    }
+
+    public Node Copy()
+    {
+        return new RenderNode(renderNode.Copy(), posStart.Copy(), posEnd.Copy());
     }
 
     public T Accept<T>(IVisitor<T> visitor, Context ctx)
@@ -210,6 +250,11 @@ public class BinOpNode : Node
         posEnd = end;
     }
 
+    public Node Copy()
+    {
+        return new BinOpNode(left.Copy(), op, right.Copy(), posStart.Copy(), posEnd.Copy());
+    }
+
     public T Accept<T>(IVisitor<T> visitor, Context ctx)
     {
         return visitor.Visit(this, ctx);
@@ -238,6 +283,11 @@ public class ForNode : Node
         idents = id;
     }
 
+    public Node Copy()
+    {
+        return new ForNode(idents, iterNode.Copy(), nodes.Select(a => a.Copy()).ToList(), posStart.Copy(), posEnd.Copy());
+    }
+
     public T Accept<T>(IVisitor<T> visitor, Context ctx)
     {
         return visitor.Visit(this, ctx);
@@ -262,6 +312,11 @@ public class IfNode : Node
         posEnd = end;
         blocks = nodes;
         elseCase = finalCase;
+    }
+
+    public Node Copy()
+    {
+        return new IfNode(blocks.Select(ab => Tuple.Create(ab.Item1.Copy(), ab.Item2.Select(a => a.Copy()).ToList())).ToList(), elseCase.Select(a => a.Copy()).ToList(), posStart.Copy(), posEnd.Copy());
     }
 
     public T Accept<T>(IVisitor<T> visitor, Context ctx)
@@ -295,6 +350,11 @@ public class CallNode : Node
         posEnd = end;
         callee = node;
         args = givenArgs;
+    }
+
+    public Node Copy()
+    {
+        return new CallNode(callee.Copy(), args.Select(a => a.Copy()).ToList(), posStart.Copy(), posEnd.Copy());
     }
 
     public T Accept<T>(IVisitor<T> visitor, Context ctx)

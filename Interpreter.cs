@@ -52,46 +52,61 @@ public class Interpreter : IVisitor<Value>
 
     public Value Visit(BinOpNode node, Context ctx)
     {
-        var left = node.left.Accept(this, ctx);
-        var right = node.right.Accept(this, ctx);
-        if (node.op.tokType == Token.TT_PLUS)
+        if(node.op.tokType == Token.TT_PIPE) {
+            var leftNode = node.left;
+            var rightNode = node.right;
+            if(node.right is CallNode)
+            {
+                var callNode = (CallNode)rightNode.Copy();
+                callNode.args.Add(leftNode);
+                return callNode.Accept(this, ctx);
+            } else 
+            {
+                return new CallNode(rightNode, new List<Node>(){leftNode}, node.posStart, node.posEnd).Accept(this, ctx);
+            }
+        } else 
         {
-            return left + right;
-        } else if (node.op.tokType == Token.TT_MINUS)
-        {
-            return left - right;
-        } else if (node.op.tokType == Token.TT_MUL)
-        {
-            return left * right;
-        } else if (node.op.tokType == Token.TT_DIV)
-        {
-            return left / right;
-        } else if (node.op.tokType == Token.TT_AND)
-        {
-            return left & right;
-        } else if (node.op.tokType == Token.TT_GT)
-        {
-            return left > right;
-        } else if (node.op.tokType == Token.TT_GTE)
-        {
-            return left >= right;
-        } else if (node.op.tokType == Token.TT_LT)
-        {
-            return left < right;
-        } else if (node.op.tokType == Token.TT_LTE)
-        {
-            return left <= right;
-        } else if (node.op.tokType == Token.TT_EE)
-        {
-            return left.ee(right);
-        } else if (node.op.tokType == Token.TT_NE)
-        {
-            return left.ne(right);
-        } else if (node.op.tokType == Token.TT_OR)
-        {
-            return left | right;
-        } else {
-            throw new RuntimeError(node.posStart, node.posEnd, string.Format("{0} not a valid operator", node.op.tokType));
+            var left = node.left.Accept(this, ctx);
+            var right = node.right.Accept(this, ctx);
+            if (node.op.tokType == Token.TT_PLUS)
+            {
+                return left + right;
+            } else if (node.op.tokType == Token.TT_MINUS)
+            {
+                return left - right;
+            } else if (node.op.tokType == Token.TT_MUL)
+            {
+                return left * right;
+            } else if (node.op.tokType == Token.TT_DIV)
+            {
+                return left / right;
+            } else if (node.op.tokType == Token.TT_AND)
+            {
+                return left & right;
+            } else if (node.op.tokType == Token.TT_GT)
+            {
+                return left > right;
+            } else if (node.op.tokType == Token.TT_GTE)
+            {
+                return left >= right;
+            } else if (node.op.tokType == Token.TT_LT)
+            {
+                return left < right;
+            } else if (node.op.tokType == Token.TT_LTE)
+            {
+                return left <= right;
+            } else if (node.op.tokType == Token.TT_EE)
+            {
+                return left.ee(right);
+            } else if (node.op.tokType == Token.TT_NE)
+            {
+                return left.ne(right);
+            } else if (node.op.tokType == Token.TT_OR)
+            {
+                return left | right;
+            } else {
+                throw new RuntimeError(node.posStart, node.posEnd, string.Format("{0} not a valid operator", node.op.tokType));
+            }
         }
     }
 

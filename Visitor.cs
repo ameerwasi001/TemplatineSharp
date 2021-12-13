@@ -3,6 +3,7 @@ public interface Node
     T Accept<T>(IVisitor<T> visitor, Context ctx);
     Position posStart {set; get;}
     Position posEnd {set; get;}
+    Node Copy();
 }
 
 public interface IVisitor<T>

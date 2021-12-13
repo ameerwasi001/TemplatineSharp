@@ -150,8 +150,7 @@ class Lexer
                 this.Advance();
             } else if (currentChar == "|")
             {
-                tokens.Add(new Token(Token.TT_OR, pos.Copy(), pos.Copy()));
-                this.Advance();
+                tokens.Add(MakeAOrB("|", Token.TT_OR, ">", Token.TT_PIPE));
             } else if (currentChar == ">")
             {
                 tokens.Add(MakeAOrB(">", Token.TT_GT, "=", Token.TT_GTE));
