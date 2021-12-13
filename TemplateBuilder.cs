@@ -28,6 +28,8 @@ class TemplateBuilder
     {
         var toks = new TemplateLexer(template).Lex();
         var renderNodes = new TemplateParser(toks).Parse();
+        var pipeEliminator = new PipeEliminator();
+        renderNodes = renderNodes.Select(a => a.Accept(pipeEliminator, new Context())).ToList();
         return new Template(renderNodes);
     }
 }
