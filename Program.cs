@@ -8,7 +8,7 @@ namespace TemplateSharp
         static void Main(string[] args)
         {
             var str = "";
-            str += "The number is {{ {\"val\": cos(x*6+4.2*(2-3)) |> sin |> pow(2)} }} and the book is written by {{index(book.author, \"firstName\")}} {{book.author.lastName}}, what's up?";
+            str += "The number is {{ {\"val\": cos(x*6+4.2*(2-3)) |>> sin |> pow(2)} }} and the book is written by {{index(book.author, \"firstName\")}} {{book.author.lastName}}, what's up?";
             str += "\nWhere is {{name + \"'s shirt with print {{obj}}\"}}?";
             str += "\nI could go for any of the following";
             str += "\n  {% for meal in meals %}";

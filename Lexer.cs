@@ -88,15 +88,16 @@ class Lexer
         return new Token(Token.TT_STRING, str, posStart.Copy(), pos.Copy());
     }
 
-    public Token MakeAOrB(string a, string tokA, string b, string tokB) 
+    public Token MakeAOrB(string a, string tokA, List<Tuple<string, string>> list)
     {
         var tokType = tokA;
         var posStart = pos.Copy();
         Advance();
-        if (currentChar == b)
+        foreach (var tup in list)
         {
+            if (currentChar != tup.Item1) break;
+            tokType = tup.Item2;
             Advance();
-            tokType = tokB;
         }
         return new Token(tokType, "", posStart, pos.Copy());
     }
@@ -150,19 +151,22 @@ class Lexer
                 this.Advance();
             } else if (currentChar == "|")
             {
-                tokens.Add(MakeAOrB("|", Token.TT_OR, ">", Token.TT_PIPE));
+                tokens.Add(MakeAOrB("|", Token.TT_OR, new List<Tuple<string, string>>(){
+                    Tuple.Create(">", Token.TT_PIPE),
+                    Tuple.Create(">", Token.TT_CURRY_PIPE),
+                }));
             } else if (currentChar == ">")
             {
-                tokens.Add(MakeAOrB(">", Token.TT_GT, "=", Token.TT_GTE));
+                tokens.Add(MakeAOrB(">", Token.TT_GT, new List<Tuple<string, string>>(){Tuple.Create("=", Token.TT_GTE)}));
             } else if (currentChar == "!")
             {
-                tokens.Add(MakeAOrB("!", Token.TT_NOT, "=", Token.TT_NE));
+                tokens.Add(MakeAOrB(">", Token.TT_NOT, new List<Tuple<string, string>>(){Tuple.Create("=", Token.TT_NE)}));
             } else if (currentChar == "=")
             {
-                tokens.Add(MakeAOrB("=", Token.TT_EE, "=", Token.TT_EE));
+                tokens.Add(MakeAOrB("=", Token.TT_NOT, new List<Tuple<string, string>>(){Tuple.Create("=", Token.TT_EE)}));
             } else if (currentChar == "<")
             {
-                tokens.Add(MakeAOrB("<", Token.TT_LT, "=", Token.TT_LTE));
+                tokens.Add(MakeAOrB("<", Token.TT_LT, new List<Tuple<string, string>>(){Tuple.Create("=", Token.TT_LTE)}));
             } else if (currentChar == "(")
             {
                 tokens.Add(new Token(Token.TT_RPAREN, pos.Copy(), pos.Copy()));

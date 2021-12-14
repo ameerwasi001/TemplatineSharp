@@ -47,10 +47,10 @@ public class PipeEliminator : IVisitor<Node>
 
     public Node Visit(BinOpNode node, Context ctx)
     {
-        if(node.op.tokType == Token.TT_PIPE) {
+        if(node.op.tokType == Token.TT_PIPE || node.op.tokType == Token.TT_CURRY_PIPE) {
             var leftNode = node.left;
             var rightNode = node.right;
-            if(node.right is CallNode)
+            if(node.right is CallNode && node.op.tokType == Token.TT_PIPE)
             {
                 var callNode = (CallNode)rightNode.Accept(this, ctx);
                 callNode.args.Add(leftNode.Accept(this, ctx));

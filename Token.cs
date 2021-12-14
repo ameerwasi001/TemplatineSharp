@@ -29,6 +29,7 @@ public class Token
     public static string TT_COMMA = "COMMA";
     public static string TT_COLON = "COLON";
     public static string TT_PIPE = "PIPE";
+    public static string TT_CURRY_PIPE = "CURRY_PIPE";
     public static string TT_END = "END";
 
     public string tokType;

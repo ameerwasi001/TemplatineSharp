@@ -172,7 +172,7 @@ class Parser {
 
     public Node ParsePipedExpression()
     {
-        return BinOp(this.ParseLogicExpr, new HashSet<string>{Token.TT_PIPE}, this.ParseLogicExpr);
+        return BinOp(this.ParseLogicExpr, new HashSet<string>{Token.TT_PIPE, Token.TT_CURRY_PIPE}, this.ParseLogicExpr);
     }
 
     public Node ParseLogicExpr()
