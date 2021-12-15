@@ -3,16 +3,21 @@ using System.Linq;
 
 public class Template {
     private List<Node> nodes;
+    private HashSet<string> requiredEnv;
 
-    public Template(List<Node> list)
+    public Template(List<Node> list, HashSet<string> env)
     {
         nodes = list;
+        requiredEnv = env;
     }
 
     public string Execute(Dictionary<string, Value> model = null)
     {
         var interpreter = new Interpreter();
-        var ctx = new Context(model == null ? new Dictionary<string, Value>() : model);
+        if(model == null) model = new Dictionary<string, Value>();
+        var modelKeys = model.Keys;
+        if(requiredEnv.Except(modelKeys).Count() != 0) throw new ModelError(requiredEnv, new HashSet<string>(modelKeys));
+        var ctx = new Context(model);
         return string.Concat(this.nodes.Select(a => a.Accept(interpreter, ctx)).Select(a => a.ToString()));
     }
 
@@ -29,7 +34,10 @@ class TemplateBuilder
         var toks = new TemplateLexer(template).Lex();
         var renderNodes = new TemplateParser(toks).Parse();
         var pipeEliminator = new PipeEliminator();
-        renderNodes = renderNodes.Select(a => a.Accept(pipeEliminator, new Context())).ToList();
-        return new Template(renderNodes);
+        var env = new HashSet<string>();
+        var envGenerator = new EnvironmentGenerator();
+        renderNodes = renderNodes.Select(a => a.Accept(pipeEliminator, true)).ToList();
+        foreach(var node in renderNodes) node.Accept(envGenerator, env);
+        return new Template(renderNodes, env);
     }
 }

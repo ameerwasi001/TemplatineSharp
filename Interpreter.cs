@@ -1,7 +1,7 @@
 using System.Collections.Generic;
 using System.Linq;
 
-public class Interpreter : IVisitor<Value>
+public class Interpreter : IVisitor<Value, Context>
 {
     public Value Visit(NumNode node, Context ctx)
     {

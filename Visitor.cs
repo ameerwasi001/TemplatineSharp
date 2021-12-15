@@ -1,23 +1,23 @@
 public interface Node
 {
-    T Accept<T>(IVisitor<T> visitor, Context ctx);
+    T Accept<T, C>(IVisitor<T, C> visitor, C ctx);
     Position posStart {set; get;}
     Position posEnd {set; get;}
     Node Copy();
 }
 
-public interface IVisitor<T>
+public interface IVisitor<T, C>
 {
-    T Visit(BinOpNode node, Context ctx);
-    T Visit(NumNode node, Context ctx);
-    T Visit(BoolNode node, Context ctx);
-    T Visit(StrNode node, Context ctx);
-    T Visit(ListNode node, Context ctx);
-    T Visit(ObjectNode node, Context ctx);
-    T Visit(AccessProperty node, Context ctx);
-    T Visit(VarAccessNode node, Context ctx);
-    T Visit(RenderNode node, Context ctx);
-    T Visit(ForNode node, Context ctx);
-    T Visit(IfNode node, Context ctx);
-    T Visit(CallNode node, Context ctx);
+    T Visit(BinOpNode node, C ctx);
+    T Visit(NumNode node, C ctx);
+    T Visit(BoolNode node, C ctx);
+    T Visit(StrNode node, C ctx);
+    T Visit(ListNode node, C ctx);
+    T Visit(ObjectNode node, C ctx);
+    T Visit(AccessProperty node, C ctx);
+    T Visit(VarAccessNode node, C ctx);
+    T Visit(RenderNode node, C ctx);
+    T Visit(ForNode node, C ctx);
+    T Visit(IfNode node, C ctx);
+    T Visit(CallNode node, C ctx);
 }

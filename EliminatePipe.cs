@@ -2,50 +2,50 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 
-public class PipeEliminator : IVisitor<Node>
+public class PipeEliminator : IVisitor<Node, bool>
 {
-    public Node Visit(NumNode node, Context _)
+    public Node Visit(NumNode node, bool _)
     {
         return node.Copy();
     }
 
-    public Node Visit(BoolNode node, Context _)
+    public Node Visit(BoolNode node, bool _)
     {
         return node.Copy();
     }
 
-    public Node Visit(RenderNode node, Context ctx)
+    public Node Visit(RenderNode node, bool ctx)
     {
         return new RenderNode(node.renderNode.Accept(this, ctx), node.posStart.Copy(), node.posEnd.Copy());
     }
 
-    public Node Visit(StrNode node, Context ctx)
+    public Node Visit(StrNode node, bool ctx)
     {
         return node.Copy();
     }
 
-    public Node Visit(ListNode node, Context ctx)
+    public Node Visit(ListNode node, bool ctx)
     {
         return new ListNode(node.list.Select(a => a.Accept(this, ctx)).ToList(), node.posStart.Copy(), node.posEnd.Copy());
     }
 
-    public Node Visit(ObjectNode node, Context ctx)
+    public Node Visit(ObjectNode node, bool ctx)
     {
         var dict = node.keyValueList.Select(kv => Tuple.Create(kv.Item1.Accept(this, ctx), kv.Item2.Accept(this, ctx))).ToList();
         return new ObjectNode(dict, node.posStart, node.posEnd);
     }
 
-    public Node Visit(AccessProperty node, Context ctx)
+    public Node Visit(AccessProperty node, bool ctx)
     {
         return new AccessProperty(node.node.Accept(this, ctx), node.accessors.Select(a => a).ToList(), node.posStart, node.posEnd);
     }
 
-    public Node Visit(VarAccessNode node, Context ctx)
+    public Node Visit(VarAccessNode node, bool ctx)
     {
         return node.Copy();
     }
 
-    public Node Visit(BinOpNode node, Context ctx)
+    public Node Visit(BinOpNode node, bool ctx)
     {
         if(node.op.tokType == Token.TT_PIPE || node.op.tokType == Token.TT_CURRY_PIPE) {
             var leftNode = node.left;
@@ -61,7 +61,7 @@ public class PipeEliminator : IVisitor<Node>
         return new BinOpNode(node.left.Accept(this, ctx), node.op, node.right.Accept(this, ctx), node.posStart.Copy(), node.posEnd.Copy());
     }
 
-    public Node Visit(ForNode forNode, Context ctx)
+    public Node Visit(ForNode forNode, bool ctx)
     {
         return new ForNode(
             forNode.idents.Select(a => a).ToList(), 
@@ -72,7 +72,7 @@ public class PipeEliminator : IVisitor<Node>
         );
     }
 
-    public Node Visit(CallNode callNode, Context ctx)
+    public Node Visit(CallNode callNode, bool ctx)
     {
         return new CallNode(
             callNode.callee.Accept(this, ctx), 
@@ -82,7 +82,7 @@ public class PipeEliminator : IVisitor<Node>
         );
     }
 
-    public Node Visit(IfNode ifNode, Context ctx)
+    public Node Visit(IfNode ifNode, bool ctx)
     {
         return new IfNode(
             ifNode.blocks.Select(ab => Tuple.Create(ab.Item1.Accept(this, ctx), ab.Item2.Select(a => a.Accept(this, ctx)).ToList())).ToList(), 
