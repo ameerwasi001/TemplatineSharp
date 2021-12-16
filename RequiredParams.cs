@@ -28,13 +28,17 @@ public class EnvironmentGenerator : IVisitor<object, ContextValidator>
 
     public object Visit(ListNode node, ContextValidator ctx)
     {
-        node.list.Select(a => a.Accept(this, ctx)).ToList();
+        foreach(var item in node.list) item.Accept(this, ctx);
         return null;
     }
 
     public object Visit(ObjectNode node, ContextValidator ctx)
     {
-        node.keyValueList.Select(kv => Tuple.Create(kv.Item1.Accept(this, ctx), kv.Item2.Accept(this, ctx))).ToList();
+        foreach(var kv in node.keyValueList)
+        {
+            kv.Item1.Accept(this, ctx);
+            kv.Item2.Accept(this, ctx);
+        }
         return null;
     }
 
@@ -61,7 +65,7 @@ public class EnvironmentGenerator : IVisitor<object, ContextValidator>
     {
         forNode.iterNode.Accept(this, ctx);
         var newCtx = new HashSet<string>();
-        forNode.nodes.Select(a => a.Accept(this, newCtx)).ToList();
+        foreach(var node in forNode.nodes) node.Accept(this, newCtx);
         var idents = new ContextValidator(forNode.idents.Select(a => a.value));
         var ls = idents.Except(newCtx);
         foreach(var str in ls) ctx.Add(str);
@@ -71,14 +75,18 @@ public class EnvironmentGenerator : IVisitor<object, ContextValidator>
     public object Visit(CallNode callNode, ContextValidator ctx)
     {
         callNode.callee.Accept(this, ctx);
-        callNode.args.Select(a => a.Accept(this, ctx)).ToList();
+        foreach(var arg in callNode.args) arg.Accept(this, ctx);
         return null;
     }
 
     public object Visit(IfNode ifNode, ContextValidator ctx)
     {
-        ifNode.blocks.Select(ab => Tuple.Create(ab.Item1.Accept(this, ctx), ab.Item2.Select(a => a.Accept(this, ctx)).ToList())).ToList();
-        ifNode.elseCase.Select(a => a.Accept(this, ctx)).ToList();
+        foreach(var condBlock in ifNode.blocks)
+        {
+            condBlock.Item1.Accept(this, ctx);
+            foreach(var stmnt in condBlock.Item2) stmnt.Accept(this, ctx);
+        }
+        foreach(var stmnt in ifNode.elseCase) stmnt.Accept(this, ctx);
         return null;
     }
 }
