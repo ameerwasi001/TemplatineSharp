@@ -49,6 +49,7 @@ namespace TemplateSharp
                 {"pow", Value.Construct(arr => System.Math.Pow(arr[0], arr[1]))},
                 {"index", Value.Construct(arr => arr[0][arr[1]])},
             });
+            var compiled = template.Compile();
             System.Console.WriteLine(executed);
         }
     }

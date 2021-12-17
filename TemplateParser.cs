@@ -41,7 +41,7 @@ public class TemplateParser
     {
         var node = currentTok.GetRenderNode();
         this.Advance();
-        return node;
+        return new RenderNode(node, node.posStart, node.posEnd);
     }
 
     private Node ParseForLoop()

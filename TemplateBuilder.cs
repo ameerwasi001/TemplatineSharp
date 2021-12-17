@@ -21,6 +21,12 @@ public class Template {
         return string.Concat(this.nodes.Select(a => a.Accept(interpreter, ctx)).Select(a => a.ToString()));
     }
 
+    public string Compile()
+    {
+        var codeGenerator = new CSharpGenerator();
+        return string.Concat(this.nodes.Select(a => a.Accept(codeGenerator, null) + "\n").Select(a => a.ToString()));
+    }
+
     override public string ToString()
     {
         return string.Join("\n", this.nodes.Select(a => a.ToString()));
