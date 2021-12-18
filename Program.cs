@@ -30,7 +30,10 @@ namespace TemplateSharp
             str += "\n  {%- endfor -%}";
 
             var template = new TemplateBuilder().Build(str);
-            var executed = template.Execute(new Dictionary<string, Value>{
+
+            // template.Compile("SimpleTemplate", string.Format("./GeneratedTemplates/SimpleTemplate.cs"));
+
+            var executed = new SimpleTemplate().Execute(new Dictionary<string, Value>{
                 {"x", Value.Construct(11)},
                 {"name", "Ameer"},
                 {"book", new Dictionary<Value, Value>{
@@ -49,7 +52,27 @@ namespace TemplateSharp
                 {"pow", Value.Construct(arr => System.Math.Pow(arr[0], arr[1]))},
                 {"index", Value.Construct(arr => arr[0][arr[1]])},
             });
-            var compiled = template.Compile();
+
+            // var executed = template.Execute(new Dictionary<string, Value>{
+            //     {"x", Value.Construct(11)},
+            //     {"name", "Ameer"},
+            //     {"book", new Dictionary<Value, Value>{
+            //         {"length", 240},
+            //         {"author", new Dictionary<Value, Value>{
+            //             {"firstName", "Frank"},
+            //             {"lastName", "Herbert"},
+            //         }}
+            //     }},
+            //     {"meals", new List<Value>(){
+            //         new List<Value>(){"Tuna", "Salmon"},
+            //         new List<Value>(){"Chicken", "Broccoli"},
+            //     }},
+            //     {"sin", Value.Construct(arr => System.Math.Sin(arr[0]))},
+            //     {"cos", Value.Construct(arr => System.Math.Cos(arr[0]))},
+            //     {"pow", Value.Construct(arr => System.Math.Pow(arr[0], arr[1]))},
+            //     {"index", Value.Construct(arr => arr[0][arr[1]])},
+            // });
+
             System.Console.WriteLine(executed);
         }
     }

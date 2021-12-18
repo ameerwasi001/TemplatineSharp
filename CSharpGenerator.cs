@@ -43,6 +43,7 @@ public class ReplaceString
 
 public class CSharpGenerator : IVisitor<string, object>
 {
+    private int forloopNestCount = 0;
     private static Dictionary<string, string> operatorTable = new Dictionary<string, string>{
         {Token.TT_PLUS, "+"},
         {Token.TT_MINUS, "-"},
@@ -96,7 +97,7 @@ public class CSharpGenerator : IVisitor<string, object>
 
     public string Visit(AccessProperty node, object ctx)
     {
-        return node.node.Accept(this, ctx) + "." + string.Join(".", node.accessors);
+        return node.node.Accept(this, ctx) + string.Concat(node.accessors.Select(a => "[\"" + a.ToString() + "\"]"));
     }
 
     public string Visit(VarAccessNode node, object ctx)
@@ -112,14 +113,17 @@ public class CSharpGenerator : IVisitor<string, object>
     public string Visit(ForNode forNode, object ctx)
     {
         var iter = forNode.iterNode.Accept(this, ctx).ToString();
-        var assigns = string.Concat(forNode.idents.Select((a, i) => "var " + a.value + " = _ls.ElementAt(" + i.ToString() + ");"));
+        var lsName = "_ls" + forloopNestCount.ToString();
+        var assigns = string.Concat(forNode.idents.Select((a, i) => "var " + a.value + " = " + lsName + ".ElementAt(" + i.ToString() + ");"));
+        forloopNestCount++;
         var block = "{\n" + Indent(assigns + "\n" + string.Join("\n", forNode.nodes.Select(a => a.Accept(this, ctx).ToString()))) + "\n}";
-        return string.Format("foreach(var _ls in {0}.GetIterator()){1}", iter, block);
+        forloopNestCount--;
+        return string.Format("foreach(var {0} in {1}.GetIterator()){2}", lsName, iter, block);
     }
 
     public string Visit(CallNode callNode, object ctx)
     {
-        return string.Format("{0}.Call({1})", callNode.callee.Accept(this, ctx), string.Join(", ", callNode.args.Select(a => a.Accept(this, ctx).ToString())));
+        return string.Format("{0}.Call(new List<Value>(){1})",  callNode.callee.Accept(this, ctx), "{" + string.Join(", ", callNode.args.Select(a => a.Accept(this, ctx).ToString())) + "}");
     }
 
     public string Visit(IfNode ifNode, object ctx)
@@ -135,5 +139,26 @@ public class CSharpGenerator : IVisitor<string, object>
             i += 1;
         }
         return string.Concat(arr) + "else{\n" + Indent(string.Join("\n", ifNode.elseCase.Select(a => a.Accept(this, ctx).ToString()))) + "\n}";
+    }
+
+    public string Generate(string name, HashSet<string> names, List<Node> nodes)
+    {
+        var code = string.Concat(nodes.Select(a => a.Accept(this, null) + "\n").Select(a => a.ToString()));
+        var boilerPlate = "using System;";
+        boilerPlate += "\nusing System.Linq;";
+        boilerPlate += "\nusing System.Collections.Generic;";
+        boilerPlate += "\n" + string.Format("class {0}", name) + "{";
+        boilerPlate += "\n\tpublic string Execute(Dictionary<string, Value> _context = null){";
+        boilerPlate += "\n\t\tif(_context == null) _context = new Dictionary<string, Value>();";
+        boilerPlate += "\n\t\tvar __generatedList = new List<Value>();";
+        foreach(var str in names)
+        {
+            boilerPlate += "\n\t\tvar " + str + " = _context[\"" + str + "\"];";
+        }
+        boilerPlate += "\n" + Indent(Indent(code));
+        boilerPlate += "\n\t\treturn string.Concat(__generatedList);";
+        boilerPlate += "\n\t}";
+        boilerPlate += "\n}";
+        return boilerPlate;
     }
 }

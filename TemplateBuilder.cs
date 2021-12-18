@@ -1,5 +1,6 @@
 using System.Collections.Generic;
 using System.Linq;
+using System.IO;
 
 public class Template {
     private List<Node> nodes;
@@ -21,10 +22,18 @@ public class Template {
         return string.Concat(this.nodes.Select(a => a.Accept(interpreter, ctx)).Select(a => a.ToString()));
     }
 
-    public string Compile()
+    public void Compile(string name, string path)
+    {
+        if(path == null) path = string.Format("./{0}.cs", name);
+        var codeGenerator = new CSharpGenerator();
+        var code = codeGenerator.Generate(name, requiredEnv, nodes);
+        File.WriteAllText(path, code);
+    }
+
+    public string Compile(string name)
     {
         var codeGenerator = new CSharpGenerator();
-        return string.Concat(this.nodes.Select(a => a.Accept(codeGenerator, null) + "\n").Select(a => a.ToString()));
+        return codeGenerator.Generate(name, requiredEnv, nodes);
     }
 
     override public string ToString()
