@@ -20,4 +20,5 @@ public interface IVisitor<T, C>
     T Visit(ForNode node, C ctx);
     T Visit(IfNode node, C ctx);
     T Visit(CallNode node, C ctx);
+    T Visit(BatchRenderNode node, C ctx);
 }

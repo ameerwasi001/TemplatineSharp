@@ -74,9 +74,14 @@ public class CSharpGenerator : IVisitor<string, object>
         return string.Format("Value.Construct({0})", node.ToString());
     }
 
+    public string Visit(BatchRenderNode node, object ctx)
+    {
+        return "__generatedString += " + string.Join(" + ", node.batch.Select(a => a.Accept(this, ctx) + ".ToString()")) + ";";
+    }
+
     public string Visit(RenderNode node, object ctx)
     {
-        return string.Format("__generatedList.Add({0});", node.renderNode.Accept(this, ctx));
+        return node.renderNode.Accept(this, ctx);
     }
 
     public string Visit(StrNode node, object ctx)
@@ -134,29 +139,29 @@ public class CSharpGenerator : IVisitor<string, object>
         {
             var keyword = i == 0 ? "if" : "else if";
             var cond = keyword + "(" + nodeBlock.Item1.Accept(this, ctx).ToString() + ")";
-            var block = "{\n" + Indent(string.Join("\n", nodeBlock.Item2.Select(a => a.Accept(this, ctx).ToString()))) + "\n}";
+            var branchCode = string.Join("\n", nodeBlock.Item2.Select(a => a.Accept(this, ctx).ToString()));
+            var block = "{\n" + Indent(branchCode) + "\n}";
             arr.Add(cond + block);
             i += 1;
         }
-        return string.Concat(arr) + "else{\n" + Indent(string.Join("\n", ifNode.elseCase.Select(a => a.Accept(this, ctx).ToString()))) + "\n}";
+        var elseCode = string.Join("\n", ifNode.elseCase.Select(a => a.Accept(this, ctx).ToString()));
+        return string.Concat(arr) + "else{\n" + Indent(elseCode) + "\n}";
     }
 
     public string Generate(string name, HashSet<string> names, List<Node> nodes)
     {
-        var code = string.Concat(nodes.Select(a => a.Accept(this, null) + "\n").Select(a => a.ToString()));
+        var codeList = nodes.Select(a => a.Accept(this, null) + "\n").Select(a => a.ToString());
+        var code = string.Join("\n", string.Concat(codeList).Split("\n").Where(a => !a.All(Char.IsWhiteSpace)));
         var boilerPlate = "using System;";
         boilerPlate += "\nusing System.Linq;";
         boilerPlate += "\nusing System.Collections.Generic;";
         boilerPlate += "\n" + string.Format("class {0}", name) + "{";
         boilerPlate += "\n\tpublic string Execute(Dictionary<string, Value> _context = null){";
         boilerPlate += "\n\t\tif(_context == null) _context = new Dictionary<string, Value>();";
-        boilerPlate += "\n\t\tvar __generatedList = new List<Value>();";
-        foreach(var str in names)
-        {
-            boilerPlate += "\n\t\tvar " + str + " = _context[\"" + str + "\"];";
-        }
+        boilerPlate += "\n\t\tvar __generatedString = \"\";";
+        foreach(var str in names) boilerPlate += string.Format("\n\t\tvar {0} = _context[\"{0}\"];", str);
         boilerPlate += "\n" + Indent(Indent(code));
-        boilerPlate += "\n\t\treturn string.Concat(__generatedList);";
+        boilerPlate += "\n\t\treturn __generatedString;";
         boilerPlate += "\n\t}";
         boilerPlate += "\n}";
         return boilerPlate;

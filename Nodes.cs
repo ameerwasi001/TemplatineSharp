@@ -89,6 +89,37 @@ public class ListNode : Node
     }
 }
 
+public class BatchRenderNode : Node
+{
+    public List<Node> batch;
+    public Position posStart {set; get;}
+    public Position posEnd {set; get;}
+
+    public BatchRenderNode(List<Node> nodes, Position start = null, Position end = null)
+    {
+        if(start == null) start = Position.Nothing();
+        if(end == null) end = Position.Nothing();
+        posStart = start;
+        posEnd = end;
+        batch = nodes;
+    }
+
+    public Node Copy()
+    {
+        return new ListNode(batch.Select(a => a.Copy()).ToList(), posStart.Copy(), posEnd.Copy());
+    }
+
+    public T Accept<T, C>(IVisitor<T, C> visitor, C ctx)
+    {
+        return visitor.Visit(this, ctx);
+    }
+
+    public override string ToString()
+    {
+        return string.Join(" + ", batch.Select(a => a.ToString()));
+    }
+}
+
 public class ObjectNode : Node
 {
     public List<Tuple<Node, Node>> keyValueList;

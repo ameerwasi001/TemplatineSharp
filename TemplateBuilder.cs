@@ -26,14 +26,16 @@ public class Template {
     {
         if(path == null) path = string.Format("./{0}.cs", name);
         var codeGenerator = new CSharpGenerator();
-        var code = codeGenerator.Generate(name, requiredEnv, nodes);
+        var newNodes = new RenderAggregator().Visit(nodes);
+        var code = codeGenerator.Generate(name, requiredEnv, newNodes);
         File.WriteAllText(path, code);
     }
 
     public string Compile(string name)
     {
         var codeGenerator = new CSharpGenerator();
-        return codeGenerator.Generate(name, requiredEnv, nodes);
+        var newNodes = new RenderAggregator().Visit(nodes);
+        return codeGenerator.Generate(name, requiredEnv, newNodes);
     }
 
     override public string ToString()

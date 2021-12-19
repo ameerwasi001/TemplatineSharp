@@ -16,6 +16,12 @@ public class EnvironmentGenerator : IVisitor<object, ContextValidator>
         return null;
     }
 
+    public object Visit(BatchRenderNode node, ContextValidator ctx)
+    {
+        foreach(var item in node.batch) item.Accept(this, ctx);
+        return null;
+    }
+
     public object Visit(RenderNode node, ContextValidator ctx)
     {
         return node.renderNode.Accept(this, ctx);
