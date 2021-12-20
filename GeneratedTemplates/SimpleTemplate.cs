@@ -4,6 +4,7 @@ using System.Collections.Generic;
 class SimpleTemplate{
 	public string Execute(Dictionary<string, Value> _context = null){
 		if(_context == null) _context = new Dictionary<string, Value>();
+		if(new HashSet<string>{"pow", "sin", "cos", "x", "index", "book", "name", "meals"}.Except(_context.Keys).Count() != 0) throw new ModelError(new HashSet<string>{"pow", "sin", "cos", "x", "index", "book", "name", "meals"}, new HashSet<string>(_context.Keys));
 		var __generatedString = "";
 		var pow = _context["pow"];
 		var sin = _context["sin"];
