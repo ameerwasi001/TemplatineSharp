@@ -13,6 +13,11 @@ public class Interpreter : IVisitor<Value, Context>
         return new Bool(node.boolean, node.posStart, node.posEnd, ctx);
     }
 
+    public Value Visit(BlockNode node, Context ctx)
+    {
+        return new BlockValue(node.block.Select(a => a.Accept(this, ctx)), node.posStart, node.posEnd, ctx);
+    }
+
     public Value Visit(BatchRenderNode node, Context ctx)
     {
         return new BlockValue(node.batch.Select(a => a.Accept(this, ctx)), node.posStart, node.posEnd, ctx);

@@ -330,6 +330,37 @@ public class ForNode : Node
     }
 }
 
+public class BlockNode : Node
+{
+    public List<Node> block;
+    public string name;
+    public Position posStart {set; get;}
+    public Position posEnd {set; get;}
+
+    public BlockNode(string id, List<Node> ns, Position start, Position end)
+    {
+        posStart = start;
+        posEnd = end;
+        name = id;
+        block = ns;
+    }
+
+    public Node Copy()
+    {
+        return new BlockNode(name, block.Select(a => a.Copy()).ToList(), posStart.Copy(), posEnd.Copy());
+    }
+
+    public T Accept<T, C>(IVisitor<T, C> visitor, C ctx)
+    {
+        return visitor.Visit(this, ctx);
+    }
+
+    public override string ToString()
+    {
+        return "block " + name + " {\n" + string.Join("\n", block.Select(x => x.ToString())) + "\n}";
+    }
+}
+
 public class IfNode : Node
 {
     public Position posStart {set; get;}

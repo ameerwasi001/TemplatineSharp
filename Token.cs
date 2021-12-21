@@ -45,7 +45,9 @@ public class Token
         "else",
         "endif",
         "true",
-        "false"
+        "false",
+        "block",
+        "endblock",
     };
 
 

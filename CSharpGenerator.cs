@@ -74,6 +74,11 @@ public class CSharpGenerator : IVisitor<string, object>
         return string.Format("Value.Construct({0})", node.ToString());
     }
 
+    public string Visit(BlockNode node, object ctx)
+    {
+        return string.Join("\n", node.block.Select(a => a.Accept(this, ctx)));
+    }
+
     public string Visit(BatchRenderNode node, object ctx)
     {
         return "__generatedString += " + string.Join(" + ", node.batch.Select(a => a.Accept(this, ctx) + ".ToString()")) + ";";

@@ -34,6 +34,7 @@ public class TemplateParser
         if(currentTok.tokType == TemplateTokenType.Render) return this.ParseRenderToken();
         else if (currentTok.tokType == TemplateTokenType.ForCue) return this.ParseForLoop();
         else if (currentTok.tokType == TemplateTokenType.IfCue) return this.ParseIfChain();
+        else if (currentTok.tokType == TemplateTokenType.BlockCue) return this.ParseBlock();
         throw new InvalidSyntaxError(currentTok.posStart, currentTok.posEnd, string.Format("Expected either an expression or a statement cue got {0}", currentTok.tokType.ToString()));
     }
 
@@ -42,6 +43,24 @@ public class TemplateParser
         var node = currentTok.GetRenderNode();
         this.Advance();
         return new RenderNode(node, node.posStart, node.posEnd);
+    }
+
+    private Node ParseBlock()
+    {
+        var blockName = currentTok.GetBlockString();
+        var posStart = currentTok.posStart;
+        this.Advance();
+        var currentNodes = new List<Node>();
+
+        while(currentTok.tokType != TemplateTokenType.EndBlockCue && currentTok.tokType != TemplateTokenType.EOF)
+        {
+            var currentNode = this.ParseToken();
+            currentNodes.Add(currentNode);
+        }
+
+        if(currentTok.tokType != TemplateTokenType.EndBlockCue) throw new InvalidSyntaxError(posStart, currentTok.posEnd.Copy(), "Expected an endfor cue");
+        this.Advance();
+        return new BlockNode(blockName, currentNodes, posStart, currentTok.posEnd);
     }
 
     private Node ParseForLoop()

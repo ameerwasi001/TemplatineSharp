@@ -73,6 +73,16 @@ public class RenderAggregator : IVisitor<Node, object>
         return node;
     }
 
+    public Node Visit(BlockNode node, object ctx)
+    {
+        return new BlockNode(
+            node.name,
+            this.AggregateBlock(node.block.Select(a => a.Accept(this, ctx)).ToList()), 
+            node.posStart.Copy(), 
+            node.posEnd.Copy()
+        );
+    }
+
     public Node Visit(ForNode forNode, object ctx)
     {
         return new ForNode(

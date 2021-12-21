@@ -14,6 +14,11 @@ public class PipeEliminator : IVisitor<Node, bool>
         return node.Copy();
     }
 
+    public Node Visit(BlockNode node, bool ctx)
+    {
+        return new BlockNode(node.name, node.block.Select(a => a.Accept(this, ctx)).ToList(), node.posStart.Copy(), node.posEnd.Copy());
+    }
+
     public Node Visit(BatchRenderNode node, bool ctx)
     {
         return new BatchRenderNode(node.batch.Select(a => a.Accept(this, ctx)).ToList(), node.posStart.Copy(), node.posEnd.Copy());

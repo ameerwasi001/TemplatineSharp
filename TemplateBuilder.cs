@@ -5,11 +5,13 @@ using System.IO;
 public class Template {
     private List<Node> nodes;
     private HashSet<string> requiredEnv;
+    private Dictionary<string, List<Node>> blockArgs;
 
-    public Template(List<Node> list, HashSet<string> env)
+    public Template(List<Node> list, HashSet<string> env, Dictionary<string, List<Node>> args)
     {
         nodes = list;
         requiredEnv = env;
+        blockArgs = args;
     }
 
     public string Execute(Dictionary<string, Value> model = null)
@@ -19,14 +21,16 @@ public class Template {
         var modelKeys = model.Keys;
         if(requiredEnv.Except(modelKeys).Count() != 0) throw new ModelError(requiredEnv, new HashSet<string>(modelKeys));
         var ctx = new Context(model);
-        return string.Concat(this.nodes.Select(a => a.Accept(interpreter, ctx)).Select(a => a.ToString()));
+        var newNodes = new PatchBlocks().Visit(nodes, blockArgs);
+        return string.Concat(newNodes.Select(a => a.Accept(interpreter, ctx)).Select(a => a.ToString()));
     }
 
     public void Compile(string name, string path)
     {
         if(path == null) path = string.Format("./{0}.cs", name);
         var codeGenerator = new CSharpGenerator();
-        var newNodes = new RenderAggregator().Visit(nodes);
+        var newNodes = new PatchBlocks().Visit(nodes, blockArgs);
+        newNodes = new RenderAggregator().Visit(newNodes);
         var code = codeGenerator.Generate(name, requiredEnv, newNodes);
         File.WriteAllText(path, code);
     }
@@ -34,7 +38,8 @@ public class Template {
     public string Compile(string name)
     {
         var codeGenerator = new CSharpGenerator();
-        var newNodes = new RenderAggregator().Visit(nodes);
+        var newNodes = new PatchBlocks().Visit(nodes, blockArgs);
+        newNodes = new RenderAggregator().Visit(newNodes);
         return codeGenerator.Generate(name, requiredEnv, newNodes);
     }
 
@@ -50,11 +55,12 @@ class TemplateBuilder
     {
         var toks = new TemplateLexer(template).Lex();
         var renderNodes = new TemplateParser(toks).Parse();
+        var blockArgs = new CollectBlocks(false).Visit(renderNodes).Item2;
         var pipeEliminator = new PipeEliminator();
         var env = new HashSet<string>();
         var envGenerator = new EnvironmentGenerator();
         renderNodes = renderNodes.Select(a => a.Accept(pipeEliminator, true)).ToList();
         foreach(var node in renderNodes) node.Accept(envGenerator, env);
-        return new Template(renderNodes, env);
+        return new Template(renderNodes, env, blockArgs);
     }
 }

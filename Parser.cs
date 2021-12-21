@@ -50,7 +50,29 @@ class Parser {
         else if(currentTok.Matches("KEYWORD", "elif")) return ParseElifStmnt();
         else if(currentTok.Matches("KEYWORD", "else")) return ParseElseStmnt();
         else if(currentTok.Matches("KEYWORD", "endif")) return ParseEndIfStmnt();
+        else if(currentTok.Matches("KEYWORD", "block")) return ParseBlockStmnt();
+        else if(currentTok.Matches("KEYWORD", "endblock")) return ParseEndBlockStmnt();
         else throw new InvalidSyntaxError(currentTok.posStart.Copy(), currentTok.posEnd.Copy(), "Expected \"for\", \"if\", \"elif\", \"else\", \"endif\", or \"endfor\" keyword");
+    }
+
+    public TemplateToken ParseBlockStmnt()
+    {
+        var posStart = currentTok.posStart.Copy();
+        if(!(currentTok.Matches("KEYWORD", "block"))) 
+            throw new InvalidSyntaxError(currentTok.posStart.Copy(), currentTok.posEnd.Copy(), "Expected \"block\" keyword");
+        this.Advance();
+        var val = currentTok.value;
+        this.Advance();
+        return new BlockCue(val, posStart, currentTok.posEnd.Copy());
+    }
+
+    public TemplateToken ParseEndBlockStmnt()
+    {
+        var posStart = currentTok.posStart.Copy();
+        if(!(currentTok.Matches("KEYWORD", "endblock"))) 
+            throw new InvalidSyntaxError(currentTok.posStart.Copy(), currentTok.posEnd.Copy(), "Expected \"endblock\" keyword");
+        this.Advance();
+        return new TemplateToken(TemplateTokenType.EndBlockCue, posStart, currentTok.posEnd);
     }
 
     public TemplateToken ParseIfStmnt()
