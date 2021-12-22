@@ -4,6 +4,11 @@ using System.Linq;
 
 public class PipeEliminator : IVisitor<Node, bool>
 {
+    public Node Visit(ExtendsNode node, bool _)
+    {
+        return node.Copy();
+    }
+
     public Node Visit(NumNode node, bool _)
     {
         return node.Copy();

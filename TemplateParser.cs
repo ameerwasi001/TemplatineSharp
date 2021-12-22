@@ -32,6 +32,7 @@ public class TemplateParser
     private Node ParseToken()
     {
         if(currentTok.tokType == TemplateTokenType.Render) return this.ParseRenderToken();
+        else if (currentTok.tokType == TemplateTokenType.Extends) return this.ParseExtends();
         else if (currentTok.tokType == TemplateTokenType.ForCue) return this.ParseForLoop();
         else if (currentTok.tokType == TemplateTokenType.IfCue) return this.ParseIfChain();
         else if (currentTok.tokType == TemplateTokenType.BlockCue) return this.ParseBlock();
@@ -43,6 +44,14 @@ public class TemplateParser
         var node = currentTok.GetRenderNode();
         this.Advance();
         return new RenderNode(node, node.posStart, node.posEnd);
+    }
+
+    private Node ParseExtends()
+    {
+        var givenTok = currentTok;
+        var extension = currentTok.GetExtendsStrng();
+        this.Advance();
+        return new ExtendsNode(extension, givenTok.posStart, givenTok.posEnd);
     }
 
     private Node ParseBlock()

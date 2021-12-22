@@ -23,6 +23,11 @@ public class RenderAggregator : IVisitor<Node, object>
         return newBlock;
     }
 
+    public Node Visit(ExtendsNode node, object ctx)
+    {
+        return node;
+    }
+
     public Node Visit(NumNode node, object ctx)
     {
         return node;

@@ -52,7 +52,20 @@ class Parser {
         else if(currentTok.Matches("KEYWORD", "endif")) return ParseEndIfStmnt();
         else if(currentTok.Matches("KEYWORD", "block")) return ParseBlockStmnt();
         else if(currentTok.Matches("KEYWORD", "endblock")) return ParseEndBlockStmnt();
+        else if(currentTok.Matches("KEYWORD", "extends")) return ParseExtendsStmnt();
         else throw new InvalidSyntaxError(currentTok.posStart.Copy(), currentTok.posEnd.Copy(), "Expected \"for\", \"if\", \"elif\", \"else\", \"endif\", or \"endfor\" keyword");
+    }
+
+    public TemplateToken ParseExtendsStmnt()
+    {
+        var posStart = currentTok.posStart.Copy();
+        if(!(currentTok.Matches("KEYWORD", "extends"))) 
+            throw new InvalidSyntaxError(currentTok.posStart.Copy(), currentTok.posEnd.Copy(), "Expected \"extends\" keyword");
+        this.Advance();
+        if(currentTok.tokType != Token.TT_STRING) throw new InvalidSyntaxError(posStart, currentTok.posEnd.Copy(), string.Format("Expected string, unexpected {0}", currentTok.tokType));
+        var val = currentTok.value;
+        this.Advance();
+        return new ExtendsToken(val, posStart, currentTok.posEnd.Copy());
     }
 
     public TemplateToken ParseBlockStmnt()
@@ -61,6 +74,7 @@ class Parser {
         if(!(currentTok.Matches("KEYWORD", "block"))) 
             throw new InvalidSyntaxError(currentTok.posStart.Copy(), currentTok.posEnd.Copy(), "Expected \"block\" keyword");
         this.Advance();
+        if(currentTok.tokType != Token.TT_IDENT) throw new InvalidSyntaxError(posStart, currentTok.posEnd.Copy(), string.Format("Expected identifier, unexpected {0}", currentTok.tokType));
         var val = currentTok.value;
         this.Advance();
         return new BlockCue(val, posStart, currentTok.posEnd.Copy());

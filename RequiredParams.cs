@@ -6,6 +6,11 @@ using ContextValidator = System.Collections.Generic.HashSet<string>;
 
 public class EnvironmentGenerator : IVisitor<object, ContextValidator>
 {
+    public object Visit(ExtendsNode node, ContextValidator ctx)
+    {
+        return null;
+    }
+
     public object Visit(NumNode node, ContextValidator ctx)
     {
         return null;

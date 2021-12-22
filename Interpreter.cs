@@ -3,6 +3,11 @@ using System.Linq;
 
 public class Interpreter : IVisitor<Value, Context>
 {
+    public Value Visit(ExtendsNode node, Context ctx)
+    {
+        return new BlockValue(new List<Value>(), node.posStart, node.posEnd, ctx);
+    }
+
     public Value Visit(NumNode node, Context ctx)
     {
         return new Number(node.num, node.posStart, node.posEnd, ctx);

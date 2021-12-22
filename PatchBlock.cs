@@ -6,6 +6,11 @@ using BlockArguments = System.Collections.Generic.Dictionary<string, System.Coll
 
 public class PatchBlocks : IVisitor<Node, BlockArguments>
 {
+    public Node Visit(ExtendsNode node, BlockArguments ctx)
+    {
+        return node.Copy();
+    }
+
     public Node Visit(NumNode node, BlockArguments ctx)
     {
         return node.Copy();

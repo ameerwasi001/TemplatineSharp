@@ -13,6 +13,11 @@ public class CollectBlocks : IVisitor<Node, BlockArguments>
         overriding = b;
     }
 
+    public Node Visit(ExtendsNode node, BlockArguments ctx)
+    {
+        return node;
+    }
+
     public Node Visit(NumNode node, BlockArguments ctx)
     {
         return node;

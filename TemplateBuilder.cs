@@ -5,14 +5,17 @@ using System.IO;
 
 public class Template {
     private List<Node> nodes;
+    private Dictionary<string, Template> templates = new Dictionary<string, Template>();
     private HashSet<string> requiredEnv;
     private Dictionary<string, List<Node>> blockArgs;
+    public string extension;
 
-    public Template(List<Node> list, HashSet<string> env, Dictionary<string, List<Node>> args)
+    public Template(List<Node> list, HashSet<string> env, string ext, Dictionary<string, List<Node>> args)
     {
         nodes = list;
         requiredEnv = env;
         blockArgs = args;
+        extension = ext;
     }
 
     public string Execute(Dictionary<string, Value> model = null)
@@ -56,18 +59,52 @@ public class Template {
         return parent;
     }
 
+    public Template Extends()
+    {
+        if(extension == null) return this;
+        else if(!(templates.ContainsKey(extension))) throw new System.Exception();
+        else return this.Extends(templates[extension].Extends());
+    }
+
     public Template Copy()
     {
         return new Template(
             this.nodes.Select(a => a.Copy()).ToList(),
             this.requiredEnv.Select(a => a).ToHashSet(),
+            this.extension,
             this.blockArgs.Select(kv => Tuple.Create(kv.Key, kv.Value.Select(a => a.Copy()).ToList())).ToDictionary(ab => ab.Item1, ab => ab.Item2)
         );
+    }
+
+    public void SetEnv(Dictionary<string, Template> env)
+    {
+        templates = env;
     }
 
     override public string ToString()
     {
         return string.Join("\n", this.nodes.Select(a => a.ToString()));
+    }
+}
+
+class TemplateSystem
+{
+    private Dictionary<string, Template> system;
+    virtual public Template this[string index] => system[index];
+
+    public TemplateSystem(Dictionary<string, Template> dict)
+    {
+        system = dict;
+    }
+
+    public void Compile(Dictionary<string, string> mapping)
+    {
+        foreach(var (key, template) in system) 
+        {
+            if(!(mapping.ContainsKey(key))) throw new Exception();
+            var name = mapping[key];
+            template.Compile(name, string.Format("./GeneratedTemplates/{0}.cs", name));
+        }
     }
 }
 
@@ -83,6 +120,19 @@ class TemplateBuilder
         var envGenerator = new EnvironmentGenerator();
         foreach(var node in renderNodes) node.Accept(envGenerator, env);
         renderNodes = renderNodes.Select(a => a.Accept(pipeEliminator, true)).ToList();
-        return new Template(renderNodes, env, blockArgs);
+        var extension = new FindExtensionReference().Visit(renderNodes);
+        return new Template(renderNodes, env, extension, blockArgs);
+    }
+
+    public TemplateSystem Build(Dictionary<string, string> dict)
+    {
+        var templateDict = dict
+            .Select(kv => Tuple.Create(kv.Key, Build(kv.Value)))
+            .ToDictionary(ab => ab.Item1, ab => ab.Item2);
+        foreach(var (_, v) in templateDict) v.SetEnv(templateDict);
+        templateDict = templateDict
+            .Select(kv => Tuple.Create(kv.Key, kv.Value.Extends()))
+            .ToDictionary(ab => ab.Item1, ab => ab.Item2);
+        return new TemplateSystem(templateDict);
     }
 }

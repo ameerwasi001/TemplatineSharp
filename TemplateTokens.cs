@@ -12,6 +12,7 @@ public enum TemplateTokenType
     BlockCue,
     EndBlockCue,
     Render,
+    Extends,
     EOF,
 }
 
@@ -43,6 +44,11 @@ public class TemplateToken
         throw new Exception("This is not a render node...");
     }
 
+    public virtual string GetExtendsStrng()
+    {
+        throw new Exception("This is not a block node...");
+    }
+
     public virtual string GetBlockString()
     {
         throw new Exception("This is not a block node...");
@@ -56,6 +62,21 @@ public class TemplateToken
     public virtual Node GetElifCueCond()
     {
         throw new Exception("This is not an IfCue...");
+    }
+}
+
+public class ExtendsToken : TemplateToken 
+{
+    public string extension;
+
+    public ExtendsToken(string str, Position start, Position end) : base(TemplateTokenType.Extends, start, end)
+    {
+        extension = str;
+    }
+
+    override public string GetExtendsStrng()
+    {
+        return extension;
     }
 }
 

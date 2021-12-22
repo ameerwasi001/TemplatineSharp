@@ -177,6 +177,35 @@ public class NumNode : Node
     }
 }
 
+public class ExtendsNode : Node
+{
+    public string extension;
+    public Position posStart {set; get;}
+    public Position posEnd {set; get;}
+    public ExtendsNode(string name, Position start, Position end)
+    {
+        posStart = start;
+        posEnd = end;
+        extension = name;
+    }
+
+    public Node Copy()
+    {
+        return new ExtendsNode(extension, posStart.Copy(), posEnd.Copy());
+    }
+
+    public T Accept<T, C>(IVisitor<T, C> visitor, C ctx)
+    {
+        return visitor.Visit(this, ctx);
+    }
+
+    public override string ToString()
+    {
+        return "extends " + "\"" + this.extension.ToString() + "\"";
+    }
+}
+
+
 public class VarAccessNode : Node
 {
     public string ident;

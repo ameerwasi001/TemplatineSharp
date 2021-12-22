@@ -64,6 +64,11 @@ public class CSharpGenerator : IVisitor<string, object>
         return string.Join("\n", str.Split("\n").Select(a => "\t" + a));
     }
 
+    public string Visit(ExtendsNode node, object ctx)
+    {
+        return "";
+    }
+
     public string Visit(NumNode node, object ctx)
     {
         return string.Format("Value.Construct({0})", node.num.ToString());
@@ -117,7 +122,7 @@ public class CSharpGenerator : IVisitor<string, object>
 
     public string Visit(BinOpNode node, object ctx)
     {
-        return operatorTable[node.op.tokType](node.left.Accept(this, ctx), node.right.Accept(this, ctx));
+        return "(" + operatorTable[node.op.tokType](node.left.Accept(this, ctx), node.right.Accept(this, ctx)) + ")";
     }
 
     public string Visit(ForNode forNode, object ctx)
