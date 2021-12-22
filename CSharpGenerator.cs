@@ -166,7 +166,7 @@ public class CSharpGenerator : IVisitor<string, object>
         boilerPlate += "\nusing System.Linq;";
         boilerPlate += "\nusing System.Collections.Generic;";
         boilerPlate += "\n" + string.Format("class {0}", name) + "{";
-        boilerPlate += "\n\tpublic string Execute(Dictionary<string, Value> _context = null){";
+        boilerPlate += "\n\tstatic public string Execute(Dictionary<string, Value> _context = null){";
         boilerPlate += "\n\t\tif(_context == null) _context = new Dictionary<string, Value>();";
         boilerPlate += string.Format("\n\t\tif(new HashSet<string>{0}.Except(_context.Keys).Count() != 0) throw new ModelError(new HashSet<string>{0}, new HashSet<string>(_context.Keys));", "{" + string.Join(", ", names.Select(a => "\"" + a.ToString() + "\"")) + "}");
         boilerPlate += "\n\t\tvar __generatedString = \"\";";

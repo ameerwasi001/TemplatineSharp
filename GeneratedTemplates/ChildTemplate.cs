@@ -2,7 +2,7 @@ using System;
 using System.Linq;
 using System.Collections.Generic;
 class ChildTemplate{
-	public string Execute(Dictionary<string, Value> _context = null){
+	static public string Execute(Dictionary<string, Value> _context = null){
 		if(_context == null) _context = new Dictionary<string, Value>();
 		if(new HashSet<string>{"name", "pow", "sin", "cos", "x", "index", "book", "meals"}.Except(_context.Keys).Count() != 0) throw new ModelError(new HashSet<string>{"name", "pow", "sin", "cos", "x", "index", "book", "meals"}, new HashSet<string>(_context.Keys));
 		var __generatedString = "";

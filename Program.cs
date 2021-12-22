@@ -60,13 +60,13 @@ namespace TemplateSharp
 
             var templates = new TemplateBuilder().Build(new Dictionary<string, string>{
                 {"parent.txt", str},
-                {"child.txt", childStr}
+                {"child.txt", childStr},
             });
             templates.Compile(new Dictionary<string, string>{
                 {"parent.txt", "ParentTemplate"},
-                {"child.txt", "ChildTemplate"}
+                {"child.txt", "ChildTemplate"},
             });
-            var executed = new ChildTemplate().Execute(env);
+            var executed = ChildTemplate.Execute(env);
             // var executed = templates["child.txt"].Execute(env);
             System.Console.WriteLine(executed);
         }

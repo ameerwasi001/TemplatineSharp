@@ -95,6 +95,7 @@ class TemplateSystem
     public TemplateSystem(Dictionary<string, Template> dict)
     {
         system = dict;
+        // Console.WriteLine(string.Join("\n", dict.Select(kv => kv.Key + ": " + kv.Value)));
     }
 
     public void Compile(Dictionary<string, string> mapping)
@@ -120,7 +121,8 @@ class TemplateBuilder
         var envGenerator = new EnvironmentGenerator();
         foreach(var node in renderNodes) node.Accept(envGenerator, env);
         renderNodes = renderNodes.Select(a => a.Accept(pipeEliminator, true)).ToList();
-        var extension = new FindExtensionReference().Visit(renderNodes);
+        var extension = ExtensionHelpers.Find(renderNodes);
+        renderNodes = ExtensionHelpers.Eliminate(renderNodes);
         return new Template(renderNodes, env, extension, blockArgs);
     }
 
