@@ -151,7 +151,7 @@ class TemplateLexer {
                     var trimChars = currentChar == "-" ? new[]{'\n', '\r', '\t', ' '} : new[]{'\t', ' '};
                     var mainChar = currentChar[0];
                     this.Adavnce();
-                    while(new List<char>(toks[toks.Count - 2]).All(pred))
+                    while(new List<char>(toks[toks.Count - 2]).All(pred) && toks[toks.Count - 2] != "")
                     {
                         toks.RemoveAt(toks.Count - 2);
                     }

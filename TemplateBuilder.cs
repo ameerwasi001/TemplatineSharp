@@ -1,3 +1,4 @@
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.IO;
@@ -43,6 +44,27 @@ public class Template {
         return codeGenerator.Generate(name, requiredEnv, newNodes);
     }
 
+    public Template Extends(Template givenTemplate)
+    {
+        var parent = givenTemplate.Copy();
+        foreach(var (k, v) in blockArgs) parent.blockArgs[k] = v;
+        parent.nodes = new PatchBlocks().Visit(parent.nodes, parent.blockArgs);
+        var env = new HashSet<string>();
+        var envGenerator = new EnvironmentGenerator();
+        foreach(var node in parent.nodes) node.Accept(envGenerator, env);
+        parent.requiredEnv = env;
+        return parent;
+    }
+
+    public Template Copy()
+    {
+        return new Template(
+            this.nodes.Select(a => a.Copy()).ToList(),
+            this.requiredEnv.Select(a => a).ToHashSet(),
+            this.blockArgs.Select(kv => Tuple.Create(kv.Key, kv.Value.Select(a => a.Copy()).ToList())).ToDictionary(ab => ab.Item1, ab => ab.Item2)
+        );
+    }
+
     override public string ToString()
     {
         return string.Join("\n", this.nodes.Select(a => a.ToString()));
@@ -59,8 +81,8 @@ class TemplateBuilder
         var pipeEliminator = new PipeEliminator();
         var env = new HashSet<string>();
         var envGenerator = new EnvironmentGenerator();
-        renderNodes = renderNodes.Select(a => a.Accept(pipeEliminator, true)).ToList();
         foreach(var node in renderNodes) node.Accept(envGenerator, env);
+        renderNodes = renderNodes.Select(a => a.Accept(pipeEliminator, true)).ToList();
         return new Template(renderNodes, env, blockArgs);
     }
 }

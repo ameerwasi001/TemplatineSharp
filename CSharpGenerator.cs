@@ -44,19 +44,19 @@ public class ReplaceString
 public class CSharpGenerator : IVisitor<string, object>
 {
     private int forloopNestCount = 0;
-    private static Dictionary<string, string> operatorTable = new Dictionary<string, string>{
-        {Token.TT_PLUS, "+"},
-        {Token.TT_MINUS, "-"},
-        {Token.TT_MUL, "*"},
-        {Token.TT_DIV, "/"},
-        {Token.TT_AND, "&"},
-        {Token.TT_OR, "|"},
-        {Token.TT_GT, ">"},
-        {Token.TT_GTE, ">="},
-        {Token.TT_LT, "<"},
-        {Token.TT_LTE, "<="},
-        {Token.TT_EE, "=="},
-        {Token.TT_NE, "!="},
+    private static Dictionary<string, Func<String, String, String>> operatorTable = new Dictionary<string, Func<String, String, String>>{
+        {Token.TT_PLUS, (a, b) => a + "+" + b},
+        {Token.TT_MINUS, (a, b) => a + "-" + b},
+        {Token.TT_MUL, (a, b) => a + "*" + b},
+        {Token.TT_DIV, (a, b) => a + "/" + b},
+        {Token.TT_AND, (a, b) => a + "&" + b},
+        {Token.TT_OR, (a, b) => a + "|" + b},
+        {Token.TT_GT, (a, b) => a + ">" + b},
+        {Token.TT_GTE, (a, b) => a + ">=" + b},
+        {Token.TT_LT, (a, b) => a + "<" + b},
+        {Token.TT_LTE, (a, b) => a + "<=" + b},
+        {Token.TT_EE, (a, b) => a + ".ee(" + b + ")"},
+        {Token.TT_NE, (a, b) => a + ".ne(" + b + ")"},
     };
 
     private static string Indent(string str)
@@ -117,7 +117,7 @@ public class CSharpGenerator : IVisitor<string, object>
 
     public string Visit(BinOpNode node, object ctx)
     {
-        return string.Format("({0} {1} {2})", node.left.Accept(this, ctx), operatorTable[node.op.tokType], node.right.Accept(this, ctx));
+        return operatorTable[node.op.tokType](node.left.Accept(this, ctx), node.right.Accept(this, ctx));
     }
 
     public string Visit(ForNode forNode, object ctx)
@@ -143,7 +143,7 @@ public class CSharpGenerator : IVisitor<string, object>
         foreach(var nodeBlock in ifNode.blocks)
         {
             var keyword = i == 0 ? "if" : "else if";
-            var cond = keyword + "(" + nodeBlock.Item1.Accept(this, ctx).ToString() + ")";
+            var cond = keyword + "((" + nodeBlock.Item1.Accept(this, ctx).ToString() + ").IsTrue())";
             var branchCode = string.Join("\n", nodeBlock.Item2.Select(a => a.Accept(this, ctx).ToString()));
             var block = "{\n" + Indent(branchCode) + "\n}";
             arr.Add(cond + block);

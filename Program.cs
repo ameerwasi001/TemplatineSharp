@@ -7,7 +7,8 @@ namespace TemplateSharp
         static void Main(string[] args)
         {
             var str = "";
-            str += "The number is {{ {\"val\": cos(x*6+4.2*(2-3)) |>> sin |> pow(2)} }} and the book is written by {{index(book.author, \"firstName\")}} {{book.author.lastName}}, what's up?";
+            str += "Title: {% block title %}Ingredients{% endblock %}";
+            str += "\nThe number is {{ {\"val\": cos(x*6+4.2*(2-3)) |>> sin |> pow(2)} }} and the book is written by {{index(book.author, \"firstName\")}} {{book.author.lastName}}, what's up?";
             str += "\nWhere is {{name + \"'s shirt with print {{obj}}\"}}?";
             str += "\nI could go for any of the following";
             str += "\n  {% for meal in meals %}";
@@ -30,31 +31,19 @@ namespace TemplateSharp
             str += "\n  {%- endfor -%}";
             str += "\n  {%- endfor -%}";
 
-            var template = new TemplateBuilder().Build(str);
+            var parentTemplate = new TemplateBuilder().Build(str);
 
-            // template.Compile("SimpleTemplate", string.Format("./GeneratedTemplates/SimpleTemplate.cs"));
+            var childStr = "";
+            childStr += "{% block title %}Meal for {{name}}{% endblock %}";
+            childStr += "\n{%- block outOfRange %}";
+            childStr += "\n  - I would like for Ameer to have a meal";
+            childStr += "\n{%- endblock -%}";
 
-            // var executed = new SimpleTemplate().Execute(new Dictionary<string, Value>{
-            //     {"x", Value.Construct(11)},
-            //     {"name", "Ameer"},
-            //     {"book", new Dictionary<Value, Value>{
-            //         {"length", 240},
-            //         {"author", new Dictionary<Value, Value>{
-            //             {"firstName", "Frank"},
-            //             {"lastName", "Herbert"},
-            //         }}
-            //     }},
-            //     {"meals", new List<Value>(){
-            //         new List<Value>(){"Tuna", "Salmon"},
-            //         new List<Value>(){"Chicken", "Broccoli"},
-            //     }},
-            //     {"sin", Value.Construct(arr => System.Math.Sin(arr[0]))},
-            //     {"cos", Value.Construct(arr => System.Math.Cos(arr[0]))},
-            //     {"pow", Value.Construct(arr => System.Math.Pow(arr[0], arr[1]))},
-            //     {"index", Value.Construct(arr => arr[0][arr[1]])},
-            // });
+            var template = new TemplateBuilder().Build(childStr).Extends(parentTemplate);
 
-            var executed = template.Execute(new Dictionary<string, Value>{
+            template.Compile("SimpleTemplate", string.Format("./GeneratedTemplates/SimpleTemplate.cs"));
+
+            var executed = new SimpleTemplate().Execute(new Dictionary<string, Value>{
                 {"x", Value.Construct(11)},
                 {"name", "Ameer"},
                 {"book", new Dictionary<Value, Value>{
@@ -73,6 +62,26 @@ namespace TemplateSharp
                 {"pow", Value.Construct(arr => System.Math.Pow(arr[0], arr[1]))},
                 {"index", Value.Construct(arr => arr[0][arr[1]])},
             });
+
+            // var executed = template.Execute(new Dictionary<string, Value>{
+            //     {"x", Value.Construct(11)},
+            //     {"name", "Ameer"},
+            //     {"book", new Dictionary<Value, Value>{
+            //         {"length", 240},
+            //         {"author", new Dictionary<Value, Value>{
+            //             {"firstName", "Frank"},
+            //             {"lastName", "Herbert"},
+            //         }}
+            //     }},
+            //     {"meals", new List<Value>(){
+            //         new List<Value>(){"Tuna", "Salmon"},
+            //         new List<Value>(){"Chicken", "Broccoli"},
+            //     }},
+            //     {"sin", Value.Construct(arr => System.Math.Sin(arr[0]))},
+            //     {"cos", Value.Construct(arr => System.Math.Cos(arr[0]))},
+            //     {"pow", Value.Construct(arr => System.Math.Pow(arr[0], arr[1]))},
+            //     {"index", Value.Construct(arr => arr[0][arr[1]])},
+            // });
 
             System.Console.WriteLine(executed);
         }
