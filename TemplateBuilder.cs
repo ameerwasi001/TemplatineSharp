@@ -95,8 +95,11 @@ class TemplateSystem
 
     public TemplateSystem(Dictionary<string, Template> dict)
     {
-        system = dict;
-        CycleDetect(system);
+        CycleDetect(dict);
+        var newDict = dict
+            .Select(kv => Tuple.Create(kv.Key, kv.Value.Extends()))
+            .ToDictionary(ab => ab.Item1, ab => ab.Item2);
+        system = newDict;
     }
 
     public void Compile(Dictionary<string, string> mapping)
@@ -154,10 +157,6 @@ class TemplateBuilder
             .Select(kv => Tuple.Create(kv.Key, Build(kv.Value)))
             .ToDictionary(ab => ab.Item1, ab => ab.Item2);
         foreach(var (_, v) in templateDict) v.SetEnv(templateDict);
-        TemplateSystem.CycleDetect(templateDict);
-        templateDict = templateDict
-            .Select(kv => Tuple.Create(kv.Key, kv.Value.Extends()))
-            .ToDictionary(ab => ab.Item1, ab => ab.Item2);
         return new TemplateSystem(templateDict);
     }
 }
