@@ -5,7 +5,7 @@ using System.IO;
 
 public class Template {
     private List<Node> nodes;
-    private Dictionary<string, Template> templates = new Dictionary<string, Template>();
+    public Dictionary<string, Template> templates = new Dictionary<string, Template>();
     private HashSet<string> requiredEnv;
     private Dictionary<string, List<Node>> blockArgs;
     public string extension;
@@ -56,6 +56,7 @@ public class Template {
         var envGenerator = new EnvironmentGenerator();
         foreach(var node in parent.nodes) node.Accept(envGenerator, env);
         parent.requiredEnv = env;
+        parent.extension = extension;
         return parent;
     }
 
@@ -95,7 +96,7 @@ class TemplateSystem
     public TemplateSystem(Dictionary<string, Template> dict)
     {
         system = dict;
-        // Console.WriteLine(string.Join("\n", dict.Select(kv => kv.Key + ": " + kv.Value)));
+        CycleDetect(system);
     }
 
     public void Compile(Dictionary<string, string> mapping)
@@ -106,6 +107,27 @@ class TemplateSystem
             var name = mapping[key];
             template.Compile(name, string.Format("./GeneratedTemplates/{0}.cs", name));
         }
+    }
+
+    static public void CycleDetect(Dictionary<string, Template> system)
+    {
+        var extensionGraph = system
+            .Select(kv => Tuple.Create(kv.Key, kv.Value.extension))
+            .ToDictionary(ab => ab.Item1, ab => ab.Item2);
+        foreach(var (_, v) in extensionGraph)
+        {
+            if(v != null) CycleDetect(v, extensionGraph, new HashSet<string>());
+        }
+    }
+
+    static public void CycleDetect(string point, Dictionary<string, string> extensionGraph, HashSet<string> visiting)
+    {
+        var newPoint = extensionGraph[point];
+        if(newPoint == null) return;
+        if(visiting.Contains(newPoint)) throw new System.Exception(string.Format("{0} is in a cycle", newPoint));
+        visiting.Add(newPoint);
+        CycleDetect(newPoint, extensionGraph, visiting);
+        visiting.Remove(newPoint);
     }
 }
 
@@ -132,6 +154,7 @@ class TemplateBuilder
             .Select(kv => Tuple.Create(kv.Key, Build(kv.Value)))
             .ToDictionary(ab => ab.Item1, ab => ab.Item2);
         foreach(var (_, v) in templateDict) v.SetEnv(templateDict);
+        TemplateSystem.CycleDetect(templateDict);
         templateDict = templateDict
             .Select(kv => Tuple.Create(kv.Key, kv.Value.Extends()))
             .ToDictionary(ab => ab.Item1, ab => ab.Item2);
