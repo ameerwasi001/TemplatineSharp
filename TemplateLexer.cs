@@ -95,11 +95,11 @@ class TemplateLexer {
         toks[toks.Count - 1] += "\"" + str + "\"";
     }
 
-    private List<TemplateToken> ToTemplateTokens(List<string> toks)
+    private List<TemplateToken> ToTemplateTokens(string fn, List<string> toks)
     {
         var templateToks = new List<TemplateToken>();
 
-        var pos = new Position("<module>", contents);
+        var pos = new Position(fn, contents);
         pos.Advance();
         foreach(var tok in toks) {
             var posStart = pos.Copy();
@@ -136,7 +136,7 @@ class TemplateLexer {
         return templateToks;
     }
 
-    public List<TemplateToken> Lex()
+    public List<TemplateToken> Lex(string fn)
     {
         while (currentChar != "")
         {
@@ -189,7 +189,7 @@ class TemplateLexer {
             i++;
         }
         toks = toks.Where(a => a != "").ToList();
-        return this.ToTemplateTokens(toks);
+        return this.ToTemplateTokens(fn, toks);
     }
 
     Func<char, bool> GetPred(Func<bool> p)

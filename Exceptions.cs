@@ -32,6 +32,14 @@ class ModelError : ValidationError
     ){}
 }
 
+class CyclicExtensionError : ValidationError
+{
+    public CyclicExtensionError(string name) : base(
+        Position.Nothing(), Position.Nothing(), 
+        string.Format("{0} is in a cycle", name)
+    ){}
+}
+
 class RuntimeError : Exception
 {
     public RuntimeError(Position start, Position end, string err) : base(

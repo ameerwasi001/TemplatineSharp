@@ -127,7 +127,7 @@ class TemplateSystem
     {
         var newPoint = extensionGraph[point];
         if(newPoint == null) return;
-        if(visiting.Contains(newPoint)) throw new System.Exception(string.Format("{0} is in a cycle", newPoint));
+        if(visiting.Contains(newPoint)) throw new CyclicExtensionError(newPoint);
         visiting.Add(newPoint);
         CycleDetect(newPoint, extensionGraph, visiting);
         visiting.Remove(newPoint);
@@ -136,9 +136,9 @@ class TemplateSystem
 
 class TemplateBuilder
 {
-   public Template Build(string template)
+   public Template Build(string fn, string template)
     {
-        var toks = new TemplateLexer(template).Lex();
+        var toks = new TemplateLexer(template).Lex(fn);
         var renderNodes = new TemplateParser(toks).Parse();
         var blockArgs = new CollectBlocks(false).Visit(renderNodes).Item2;
         var pipeEliminator = new PipeEliminator();
@@ -154,7 +154,7 @@ class TemplateBuilder
     public TemplateSystem Build(Dictionary<string, string> dict)
     {
         var templateDict = dict
-            .Select(kv => Tuple.Create(kv.Key, Build(kv.Value)))
+            .Select(kv => Tuple.Create(kv.Key, Build(kv.Key, kv.Value)))
             .ToDictionary(ab => ab.Item1, ab => ab.Item2);
         foreach(var (_, v) in templateDict) v.SetEnv(templateDict);
         return new TemplateSystem(templateDict);
