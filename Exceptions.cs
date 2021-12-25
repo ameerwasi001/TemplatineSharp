@@ -34,10 +34,25 @@ class ModelError : ValidationError
 
 class CyclicExtensionError : ValidationError
 {
-    public CyclicExtensionError(string name) : base(
+    public CyclicExtensionError(string point, IEnumerable<string> cycle) : base(
         Position.Nothing(), Position.Nothing(), 
-        string.Format("{0} is in a cycle", name)
+        string.Format("{0} is a cycle and cyclical inheritance in not allowed", string.Format("{0} -> {1}", string.Join(" -> ", extractCycle(point, cycle)), point))
     ){}
+
+    static private List<string> extractCycle(string point, IEnumerable<string> visiting)
+    {
+        var cycle = new List<string>();
+        var found = false;
+        foreach(var vertex in visiting)
+        {
+            if(found) cycle.Add(vertex);
+            else if(point == vertex) {
+                found = true;
+                cycle.Add(vertex);
+            }
+        }
+        return cycle;
+    }
 }
 
 class RuntimeError : Exception

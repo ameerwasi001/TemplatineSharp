@@ -88,6 +88,52 @@ public class Template {
     }
 }
 
+class OrderedHashSet<T> : IEnumerable<T>
+{
+    private List<T> order;
+    private HashSet<T> elems;
+
+    public OrderedHashSet()
+    {
+        order = new List<T>();
+        elems = new HashSet<T>();
+    }
+
+    public bool Contains(T elem)
+    {
+        return elems.Contains(elem);
+    }
+
+    public void Add(T elem)
+    {
+        elems.Add(elem);
+        order.Add(elem);
+    }
+
+    public void Remove(T given)
+    {
+        elems.Remove(given);
+        var i = 0;
+        while(i < order.Count) 
+        {
+            if(EqualityComparer<T>.Default.Equals(order[i], given)) {
+                order.RemoveAt(i);
+                break;
+            }
+            i++;
+        }
+    }
+
+    public IEnumerator<T> GetEnumerator()
+    {
+        foreach(var elem in order) yield return elem;
+    }
+
+    System.Collections.IEnumerator System.Collections.IEnumerable.GetEnumerator() {
+        return GetEnumerator();
+    }
+}
+
 class TemplateSystem
 {
     private Dictionary<string, Template> system;
@@ -114,23 +160,41 @@ class TemplateSystem
 
     static public void CycleDetect(Dictionary<string, Template> system)
     {
-        var extensionGraph = system
+        CycleDetect(
+            system
             .Select(kv => Tuple.Create(kv.Key, kv.Value.extension))
-            .ToDictionary(ab => ab.Item1, ab => ab.Item2);
+            .ToDictionary(ab => ab.Item1, ab => ab.Item2)
+        );
+    }
+
+    static public void CycleDetect(Dictionary<string, string> extensionGraph)
+    {
         foreach(var (_, v) in extensionGraph)
         {
-            if(v != null) CycleDetect(v, extensionGraph, new HashSet<string>());
+            if(v != null) CycleDetect(v, extensionGraph, new OrderedHashSet<string>());
         }
     }
 
-    static public void CycleDetect(string point, Dictionary<string, string> extensionGraph, HashSet<string> visiting)
+    static public void CycleDetect(string point, Dictionary<string, string> extensionGraph, OrderedHashSet<string> visiting)
     {
-        var newPoint = extensionGraph[point];
-        if(newPoint == null) return;
-        if(visiting.Contains(newPoint)) throw new CyclicExtensionError(newPoint);
-        visiting.Add(newPoint);
-        CycleDetect(newPoint, extensionGraph, visiting);
-        visiting.Remove(newPoint);
+        CycleDetect(
+            point,
+            extensionGraph.ToDictionary(kv => kv.Key, kv => kv.Value == null ? null : new List<string>{kv.Value}),
+            visiting
+        );
+    }
+
+    static public void CycleDetect(string point, Dictionary<string, List<string>> extensionGraph, OrderedHashSet<string> visiting)
+    {
+        var points = extensionGraph[point];
+        if(points == null) return;
+        foreach(var newPoint in points)
+        {
+            if(visiting.Contains(newPoint)) throw new CyclicExtensionError(newPoint, visiting);
+            visiting.Add(newPoint);
+            CycleDetect(newPoint, extensionGraph, visiting);
+            visiting.Remove(newPoint);
+        }
     }
 }
 
