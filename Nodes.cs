@@ -116,7 +116,7 @@ public class BatchRenderNode : Node
 
     public override string ToString()
     {
-        return string.Join(" + ", batch.Select(a => a.ToString()));
+        return "<" + string.Join(" + ", batch.Select(a => a.ToString())) + ">";
     }
 }
 

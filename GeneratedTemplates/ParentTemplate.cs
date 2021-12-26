@@ -14,9 +14,7 @@ class ParentTemplate{
 		var book = _context["book"];
 		var name = _context["name"];
 		var meals = _context["meals"];
-		__generatedString += Value.Construct("Title: ").ToString();
-		__generatedString += Value.Construct("Ingredients").ToString();
-		__generatedString += Value.Construct("\nThe number is ").ToString() + Value.Construct(new Dictionary<Value, Value>{{Value.Construct("val"), pow.Call(new List<Value>(){Value.Construct(2), sin.Call(new List<Value>(){cos.Call(new List<Value>(){((x*Value.Construct(6))+(Value.Construct(4.2)*(Value.Construct(2)-Value.Construct(3))))})})})}}).ToString() + Value.Construct(" and the book is written by ").ToString() + index.Call(new List<Value>(){book["author"], Value.Construct("firstName")}).ToString() + Value.Construct(" ").ToString() + book["author"]["lastName"].ToString() + Value.Construct(", what's up?\nWhere is ").ToString() + (name+Value.Construct("'s shirt with print {{obj}}")).ToString() + Value.Construct("?\nI could go for any of the following\n  ").ToString();
+		__generatedString += Value.Construct("Title: ").ToString() + Value.Construct("Ingredients").ToString() + Value.Construct("\nThe number is ").ToString() + Value.Construct(new Dictionary<Value, Value>{{Value.Construct("val"), pow.Call(new List<Value>(){Value.Construct(2), sin.Call(new List<Value>(){cos.Call(new List<Value>(){((x*Value.Construct(6))+(Value.Construct(4.2)*(Value.Construct(2)-Value.Construct(3))))})})})}}).ToString() + Value.Construct(" and the book is written by ").ToString() + index.Call(new List<Value>(){book["author"], Value.Construct("firstName")}).ToString() + Value.Construct(" ").ToString() + book["author"]["lastName"].ToString() + Value.Construct(", what's up?\nWhere is ").ToString() + (name+Value.Construct("'s shirt with print {{obj}}")).ToString() + Value.Construct("?\nI could go for any of the following\n  ").ToString();
 		foreach(var _ls0 in meals.GetIterator()){
 			var meal = _ls0.ElementAt(0);
 			foreach(var _ls1 in meal.GetIterator()){
