@@ -73,6 +73,12 @@ Big
 ```
 This would work like a traditional if statement and render depending of the value of x. Following are all the logical, relational, and arithmetic operators respectively. `&`, `|`, `>=`, `>`, `==`, `<`, `<=`, `!=`, `+`, `-`, `*`, and `/`.
 
+## Pipes and Functions
+Functions can be called using by using `f(a1, a1)` syntax as well as `a2 |> f(a1)`. Although if a function returns a function then one might want to consider the curry pipe for function calls lke `f(x)(y)` which may be expressed as `y |>> f(x)`.
+
+## Containers
+The available containers are list, and dictionary such as the following `[1, 2, 3, 4, 5]`, and `{"a": 4, "b": "m"}`. Dictionaries and lists can contain an item of any type but the keys of dictionaries must be, at least for now, primitves like strings, integers, and booleans.
+
 ## Blocks & Inheritance
 Blocks are parts of the template that can be overridden via inheritance, so we will discuss the concepts together. Following is how you would define a block in `parent.txt`
 ```
