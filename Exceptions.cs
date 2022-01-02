@@ -24,6 +24,13 @@ class ValidationError : Exception
     ){}
 }
 
+class NestedExtensionError : Exception
+{
+    public NestedExtensionError(Position start, Position end) : base(
+        String.Concat(new[]{"NestedExtensionError: Nesting extensions is impossible\n", "File ", start.fn, " in line number ", (start.ln + 1).ToString()})
+    ){}
+}
+
 class ModelError : ValidationError
 {
     public ModelError(HashSet<string> requiredEnv, HashSet<string> modelKeys) : base(

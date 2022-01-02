@@ -212,6 +212,7 @@ class TemplateBuilder
         renderNodes = renderNodes.Select(a => a.Accept(pipeEliminator, true)).ToList();
         var extension = ExtensionHelpers.Find(renderNodes);
         renderNodes = ExtensionHelpers.Eliminate(renderNodes);
+        new NestedExtendsError().Visit(renderNodes);
         return new Template(renderNodes, env, extension, blockArgs);
     }
 
