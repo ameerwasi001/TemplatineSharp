@@ -6,13 +6,6 @@ using BlockArguments = System.Collections.Generic.Dictionary<string, System.Coll
 
 public class CollectBlocks : IVisitor<Node, BlockArguments>
 {
-    public bool overriding;
-
-    public CollectBlocks(bool b)
-    {
-        overriding = b;
-    }
-
     public Node Visit(ExtendsNode node, BlockArguments ctx)
     {
         return node;
@@ -71,7 +64,6 @@ public class CollectBlocks : IVisitor<Node, BlockArguments>
     public Node Visit(BlockNode node, BlockArguments ctx)
     {
         var name = node.name;
-        if((!overriding) && (ctx.ContainsKey(name))) throw new System.Exception("Overriding is not acceptable here");
         var newBody = node.block.Select(a => a.Accept(this, ctx)).ToList();
         ctx[name] = newBody;
         return new BlockNode(

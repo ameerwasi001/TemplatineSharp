@@ -204,7 +204,7 @@ class TemplateBuilder
     {
         var toks = new TemplateLexer(template).Lex(fn);
         var renderNodes = new TemplateParser(toks).Parse();
-        var blockArgs = new CollectBlocks(false).Visit(renderNodes).Item2;
+        var blockArgs = new CollectBlocks().Visit(renderNodes).Item2;
         var pipeEliminator = new PipeEliminator();
         var env = new HashSet<string>();
         var envGenerator = new EnvironmentGenerator();
