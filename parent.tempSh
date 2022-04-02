@@ -1,0 +1,23 @@
+Title: {% block title %}Ingredients{% endblock %}
+The number is {{ {"val": cos(x*6+4.2*(2-3)) |>> sin |> pow(2)} }} and the book is written by {{index(book.author, "firstName")}} {{book.author.lastName}}, what's up?
+Where is {{name + "'s shirt with print {{obj}}"}}?
+I could go for any of the following
+  {% for meal in meals %}
+  {%- for ingred in meal -%}
+  {%- if x < 3 %}
+  - I could go for a meal with {{ingred}}
+  {%- elif x < 5 %}
+  - I would like to have a meal with {{ingred}}
+  {%- elif x < 10 %}
+  - I would love a meal with {{ingred}}
+  {%- else %}
+  {%- if name == "Ameer" %}
+  - Ameer would kill for a meal with {{ingred}}
+  {%- else -%}
+  {%- block outOfRange %}
+  - I would kill for a meal with {{ingred}}
+  {%- endblock -%}
+  {%- endif -%}
+  {% endif -%}
+  {%- endfor -%}
+  {%- endfor -%}

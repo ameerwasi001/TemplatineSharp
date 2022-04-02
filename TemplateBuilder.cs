@@ -158,6 +158,17 @@ class TemplateSystem
         }
     }
 
+    public void Compile(IEnumerable<string> list)
+    {
+        var dict = new Dictionary<string, string>{};
+        foreach(var str in list) {
+            var replacedDotStr = str.Replace(".tempSh","Template");
+            var newStr = char.ToUpper(replacedDotStr[0]) + replacedDotStr.Substring(1);
+            dict[str] = newStr;
+        }
+        Compile(dict);
+    }
+
     static public void CycleDetect(Dictionary<string, Template> system)
     {
         CycleDetect(
@@ -223,5 +234,13 @@ class TemplateBuilder
             .ToDictionary(ab => ab.Item1, ab => ab.Item2);
         foreach(var (_, v) in templateDict) v.SetEnv(templateDict);
         return new TemplateSystem(templateDict);
+    }
+
+    public TemplateSystem Build(IEnumerable<string> dict)
+    {
+        var templateDict = dict
+            .Select(v => Tuple.Create(v, System.IO.File.ReadAllText(v)))
+            .ToDictionary(ab => ab.Item1, ab => ab.Item2);
+        return Build(templateDict);
     }
 }

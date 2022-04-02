@@ -1,0 +1,5 @@
+{% extends "parent.tempSh" %}
+{%- block title %}Meal for {{name}}{% endblock %}
+{%- block outOfRange %}
+  - I would like for Ameer to have a meal
+{%- endblock -%}
