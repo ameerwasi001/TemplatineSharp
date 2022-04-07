@@ -13,6 +13,10 @@ TemplateSystem templates = new TemplateBuilder().Build(new Dictionary<string, st
     {"child.txt", childStr},
 });
 ```
+but if you have those templates in seperate files, then you can say
+```
+TemplateSystem templates = new TemplateBuilder().Build(new List<string>{ "parent.tempSh", "child.tempSh" })
+```
 both of which can then either be ran by stating
 ```
 var executed = templates["child.txt"].Execute(env);
@@ -32,7 +36,10 @@ for a TemplatingSystem where "ParentTemplate" is the name of the class it wll co
 ```
 template.Compile(src, path_to_compile_to)
 ```
-The compiled templates can then be ran using an Execute function identical to the one that you may use to execute Templates.
+The compiled templates can then be ran using an Execute function identical to the one that you may use to execute Templates. If you have your templates in files like sane person then you may load them directly from there like 
+```
+templates.Compile(new List<string>{ "parent.tempSh", "child.tempSh" });
+```
 
 ## Loops
 The first construct you should familiarize yourself with, is a for-loop in TemplatineSharp. Here's how you write a for-loop in this templating engine
